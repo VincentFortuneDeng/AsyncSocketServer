@@ -84,6 +84,7 @@
             this.txtShowInfo.Size = new System.Drawing.Size(648, 320);
             this.txtShowInfo.TabIndex = 2;
             this.txtShowInfo.Text = "";
+            this.txtShowInfo.TextChanged += new System.EventHandler(this.txtShowInfo_TextChanged);
             // 
             // startService
             // 

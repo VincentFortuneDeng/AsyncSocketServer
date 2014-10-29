@@ -517,6 +517,84 @@ namespace TCPServer
                 return false;//发送失败
             }
         }
+
+        private void SendBroadMessage(BaseStationMessage message)
+        {
+            lock (((ICollection)m_sessionTable).SyncRoot)
+            {
+                if (m_listSBS.Count > 0 && m_sessionTable.Count > 0)
+                {
+                    //string strDataLine = m_listSBS[m_sendIndex++];
+                    string strDataLine = String.Concat(message.ToBaseStationString(), "\r\n");
+
+                    //if (m_sendIndex >= m_listSBS.Count) m_sendIndex = 0;
+
+                    //Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
+                    byte[] bytes = Encoding.ASCII.GetBytes(String.Concat(strDataLine, "\r\n"));
+                    if (bytes != null && bytes.Length > 0) {
+
+                    /*
+                    IDictionaryEnumerator myEnumerator = _sessionTable.GetEnumerator();
+                    while (myEnumerator.MoveNext())
+                    {
+                        EndPoint tempend = (EndPoint)_sessionTable.Values;
+                        Client.SendTo(sendData, tempend);
+                    }
+                     * */
+                    //try
+                    //{
+
+                    //if (m_sessionTable.Count > 0)
+                    //{
+                    foreach (AsyncUserToken socketClient in m_sessionTable.Values)
+                    {
+
+
+                        try
+                        {
+                            Send(socketClient.ConnectionId, bytes);
+                            //ShowClientMessage(string.Format("向{0}发送数据:{1}", socketClient.ConnectionId, strDataLine));
+                            //this.richTextBox_log.AppendText(string.Format("<{0}>:向{1}发送数据:{2}\r\n", DateTime.Now.ToString(), id, data));
+                            //SetSedText(string.Format("向{0}发送数据:{1}", id, data));
+                        }
+                        catch (Exception ee)
+                        {
+                            ShowClientMessage("发送数据出现异常：" + ee.Message);
+                            return;
+                        }
+                    }
+
+                    ShowClientMessage(strDataLine);
+                    //}
+
+                    //}
+                    //catch
+                    //{
+
+                    //}
+                    }
+
+
+                }
+
+                else
+                {
+                    if (m_listSBS.Count <= 0)
+                    {
+                        ShowClientMessage("没有数据内容");
+                    }
+
+                    else if (m_sessionTable.Count <= 0)
+                    {
+                        PauseTimer();
+                    }
+                    //PauseTimer();
+
+                }
+            }
+
+        }
+
         private void SendBroadMessage()
         {
             lock (((ICollection)m_sessionTable).SyncRoot)
@@ -695,9 +773,19 @@ namespace TCPServer
 
         }
 
+        private BaseStationMessage CreateBaseStationMessage(DateTime messageReceivedUtc, GPS gpsSMessage )
+        {
+            throw new NotImplementedException();
+        }
+
         private void SendClick(object sender, EventArgs e)
         {
-            SendBroadMessage();
+            GPS gpsMessage = new GPS();
+            gpsMessage.OriginalLng 
+            BaseStationMessage message = CreateBaseStationMessage(DateTime.UtcNow,gpsMessage);
+
+            SendBroadMessage(message);
+
         }
 
         private void timerSender_Tick(object sender, EventArgs e)
@@ -826,6 +914,11 @@ namespace TCPServer
                 txtShowInfo.ScrollToCaret();
 
             }
+        }
+
+        private void txtShowInfo_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 
