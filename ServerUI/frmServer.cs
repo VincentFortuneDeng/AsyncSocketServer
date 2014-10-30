@@ -531,47 +531,48 @@ namespace TCPServer
 
                     //Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
                     byte[] bytes = Encoding.ASCII.GetBytes(String.Concat(strDataLine, "\r\n"));
-                    if (bytes != null && bytes.Length > 0) {
-
-                    /*
-                    IDictionaryEnumerator myEnumerator = _sessionTable.GetEnumerator();
-                    while (myEnumerator.MoveNext())
-                    {
-                        EndPoint tempend = (EndPoint)_sessionTable.Values;
-                        Client.SendTo(sendData, tempend);
-                    }
-                     * */
-                    //try
-                    //{
-
-                    //if (m_sessionTable.Count > 0)
-                    //{
-                    foreach (AsyncUserToken socketClient in m_sessionTable.Values)
+                    if (bytes != null && bytes.Length > 0)
                     {
 
-
-                        try
+                        /*
+                        IDictionaryEnumerator myEnumerator = _sessionTable.GetEnumerator();
+                        while (myEnumerator.MoveNext())
                         {
-                            Send(socketClient.ConnectionId, bytes);
-                            //ShowClientMessage(string.Format("向{0}发送数据:{1}", socketClient.ConnectionId, strDataLine));
-                            //this.richTextBox_log.AppendText(string.Format("<{0}>:向{1}发送数据:{2}\r\n", DateTime.Now.ToString(), id, data));
-                            //SetSedText(string.Format("向{0}发送数据:{1}", id, data));
+                            EndPoint tempend = (EndPoint)_sessionTable.Values;
+                            Client.SendTo(sendData, tempend);
                         }
-                        catch (Exception ee)
+                         * */
+                        //try
+                        //{
+
+                        //if (m_sessionTable.Count > 0)
+                        //{
+                        foreach (AsyncUserToken socketClient in m_sessionTable.Values)
                         {
-                            ShowClientMessage("发送数据出现异常：" + ee.Message);
-                            return;
+
+
+                            try
+                            {
+                                Send(socketClient.ConnectionId, bytes);
+                                //ShowClientMessage(string.Format("向{0}发送数据:{1}", socketClient.ConnectionId, strDataLine));
+                                //this.richTextBox_log.AppendText(string.Format("<{0}>:向{1}发送数据:{2}\r\n", DateTime.Now.ToString(), id, data));
+                                //SetSedText(string.Format("向{0}发送数据:{1}", id, data));
+                            }
+                            catch (Exception ee)
+                            {
+                                ShowClientMessage("发送数据出现异常：" + ee.Message);
+                                return;
+                            }
                         }
-                    }
 
-                    ShowClientMessage(strDataLine);
-                    //}
+                        ShowClientMessage(strDataLine);
+                        //}
 
-                    //}
-                    //catch
-                    //{
+                        //}
+                        //catch
+                        //{
 
-                    //}
+                        //}
                     }
 
 
@@ -737,6 +738,8 @@ namespace TCPServer
             public int Counter = 0;
         }
 
+
+
         private class StateObject
         {
             public Socket workSocket = null;
@@ -765,6 +768,11 @@ namespace TCPServer
 
             cbxIPProtocol.SelectedIndex = 0;
 
+            unassignedCountry.CodeBlock.Country = "Unassigned Country";
+            unassignedCountry.CodeBlock.IsMilitary = false;
+            unassignedCountry.SignificantBitMask = 0x7FFFFF;
+            unassignedCountry.BitMask = 0x0;
+
         }
 
         //窗口关闭时中止线程。
@@ -773,16 +781,43 @@ namespace TCPServer
 
         }
 
-        private BaseStationMessage CreateBaseStationMessage(DateTime messageReceivedUtc, GPS gpsSMessage )
+        CodeBlockBitMask unassignedCountry = new CodeBlockBitMask();
+
+
+        private BaseStationMessage CreateBaseStationCallsignMessage(DateTime messageReceivedUtc, GPS gpsSMessage)
         {
-            throw new NotImplementedException();
+            BaseStationMessage message = new BaseStationMessage();
+            message.MessageLogged = messageReceivedUtc;
+            message.MessageGenerated = messageReceivedUtc;
+            message.MessageType = BaseStationMessageType.Transmission;
+            message.TransmissionType = BaseStationTransmissionType.IdentificationAndCategory;
+            message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
+            message.Callsign = "DDG" + gpsSMessage.CarID;
+
+            return message;
+        }
+
+        private BaseStationMessage CreateBaseStationSurfacePositionMessage(DateTime messageReceivedUtc, GPS gpsSMessage)
+        {
+            BaseStationMessage message = new BaseStationMessage();
+            message.MessageLogged = messageReceivedUtc;
+            message.MessageGenerated = messageReceivedUtc;
+            message.MessageType = BaseStationMessageType.Transmission;
+            message.TransmissionType = BaseStationTransmissionType.SurfacePosition;
+            message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
+            message.GroundSpeed = gpsSMessage.Speed;
+            message.Track = (float)gpsSMessage.OriginalDirection;
+            message.Latitude = (float)gpsSMessage.OriginalLat;
+            message.Longitude = (float)gpsSMessage.OriginalLng;
+
+            return message;
         }
 
         private void SendClick(object sender, EventArgs e)
         {
             GPS gpsMessage = new GPS();
-            gpsMessage.OriginalLng 
-            BaseStationMessage message = CreateBaseStationMessage(DateTime.UtcNow,gpsMessage);
+
+            BaseStationMessage message = CreateBaseStationMessage(DateTime.UtcNow, gpsMessage);
 
             SendBroadMessage(message);
 
