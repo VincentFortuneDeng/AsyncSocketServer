@@ -60,6 +60,7 @@
     <Compile Include="BaseStationSupplementaryMessage.cs" />
     <Compile Include="BaseStationTransmissionType.cs" />
     <Compile Include="CodeBlock.cs" />
+    <Compile Include="DistanceUnit.cs" />
     <Compile Include="GaussClass.cs" />
     <Compile Include="GPS.cs" />
     <Compile Include="frmServer.cs">
@@ -68,11 +69,13 @@
     <Compile Include="frmServer.Designer.cs">
       <DependentUpon>frmServer.cs</DependentUpon>
     </Compile>
+    <Compile Include="HeightUnit.cs" />
     <Compile Include="MsgBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Round.cs" />
     <Compile Include="SpeedType.cs" />
+    <Compile Include="SpeedUnit.cs" />
     <Compile Include="UnitConverter.cs" />
     <EmbeddedResource Include="frmServer.resx">
       <DependentUpon>frmServer.cs</DependentUpon>

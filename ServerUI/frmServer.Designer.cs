@@ -35,7 +35,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.statuBar = new System.Windows.Forms.ToolStripStatusLabel();
             this.send = new System.Windows.Forms.Button();
-            this.sendmsg = new System.Windows.Forms.TextBox();
+            this.txtOriginalID = new System.Windows.Forms.TextBox();
             this.list_Online = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.timerSender = new System.Windows.Forms.Timer(this.components);
@@ -57,6 +57,9 @@
             this.label6 = new System.Windows.Forms.Label();
             this.btnCleanText = new System.Windows.Forms.Button();
             this.lblNums = new System.Windows.Forms.Label();
+            this.txtICAO24 = new System.Windows.Forms.TextBox();
+            this.lblChange = new System.Windows.Forms.Label();
+            this.btnChangeID = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -120,16 +123,14 @@
             this.send.TabIndex = 5;
             this.send.Text = "发送广播消息";
             this.send.UseVisualStyleBackColor = true;
-            this.send.Visible = false;
             this.send.Click += new System.EventHandler(this.SendClick);
             // 
-            // sendmsg
+            // txtOriginalID
             // 
-            this.sendmsg.Location = new System.Drawing.Point(441, 353);
-            this.sendmsg.Name = "sendmsg";
-            this.sendmsg.Size = new System.Drawing.Size(175, 20);
-            this.sendmsg.TabIndex = 6;
-            this.sendmsg.Visible = false;
+            this.txtOriginalID.Location = new System.Drawing.Point(786, 353);
+            this.txtOriginalID.Name = "txtOriginalID";
+            this.txtOriginalID.Size = new System.Drawing.Size(89, 20);
+            this.txtOriginalID.TabIndex = 6;
             // 
             // list_Online
             // 
@@ -173,6 +174,7 @@
             this.groupBox1.Controls.Add(this.btnSpeedDown);
             this.groupBox1.Controls.Add(this.btnPause);
             this.groupBox1.Controls.Add(this.btnStart);
+            this.groupBox1.ForeColor = System.Drawing.Color.White;
             this.groupBox1.Location = new System.Drawing.Point(147, 160);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(171, 157);
@@ -182,6 +184,7 @@
             // 
             // btnSpeedUp
             // 
+            this.btnSpeedUp.ForeColor = System.Drawing.SystemColors.WindowText;
             this.btnSpeedUp.Location = new System.Drawing.Point(8, 28);
             this.btnSpeedUp.Name = "btnSpeedUp";
             this.btnSpeedUp.Size = new System.Drawing.Size(75, 23);
@@ -192,6 +195,7 @@
             // 
             // btnReset
             // 
+            this.btnReset.ForeColor = System.Drawing.SystemColors.WindowText;
             this.btnReset.Location = new System.Drawing.Point(89, 70);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
@@ -202,6 +206,7 @@
             // 
             // btnSpeedNomal
             // 
+            this.btnSpeedNomal.ForeColor = System.Drawing.SystemColors.WindowText;
             this.btnSpeedNomal.Location = new System.Drawing.Point(8, 70);
             this.btnSpeedNomal.Name = "btnSpeedNomal";
             this.btnSpeedNomal.Size = new System.Drawing.Size(75, 23);
@@ -212,6 +217,7 @@
             // 
             // btnSpeedDown
             // 
+            this.btnSpeedDown.ForeColor = System.Drawing.SystemColors.WindowText;
             this.btnSpeedDown.Location = new System.Drawing.Point(89, 28);
             this.btnSpeedDown.Name = "btnSpeedDown";
             this.btnSpeedDown.Size = new System.Drawing.Size(75, 23);
@@ -222,6 +228,7 @@
             // 
             // btnPause
             // 
+            this.btnPause.ForeColor = System.Drawing.SystemColors.WindowText;
             this.btnPause.Location = new System.Drawing.Point(89, 112);
             this.btnPause.Name = "btnPause";
             this.btnPause.Size = new System.Drawing.Size(75, 23);
@@ -232,6 +239,7 @@
             // 
             // btnStart
             // 
+            this.btnStart.ForeColor = System.Drawing.SystemColors.WindowText;
             this.btnStart.Location = new System.Drawing.Point(8, 112);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
@@ -251,6 +259,7 @@
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.label1);
+            this.groupBox2.ForeColor = System.Drawing.Color.White;
             this.groupBox2.Location = new System.Drawing.Point(147, 27);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(171, 125);
@@ -346,7 +355,7 @@
             // 
             // btnCleanText
             // 
-            this.btnCleanText.Location = new System.Drawing.Point(629, 350);
+            this.btnCleanText.Location = new System.Drawing.Point(568, 350);
             this.btnCleanText.Name = "btnCleanText";
             this.btnCleanText.Size = new System.Drawing.Size(87, 27);
             this.btnCleanText.TabIndex = 5;
@@ -362,18 +371,50 @@
             this.lblNums.Size = new System.Drawing.Size(0, 13);
             this.lblNums.TabIndex = 8;
             // 
+            // txtICAO24
+            // 
+            this.txtICAO24.Location = new System.Drawing.Point(906, 353);
+            this.txtICAO24.Name = "txtICAO24";
+            this.txtICAO24.Size = new System.Drawing.Size(89, 20);
+            this.txtICAO24.TabIndex = 6;
+            // 
+            // lblChange
+            // 
+            this.lblChange.AutoSize = true;
+            this.lblChange.BackColor = System.Drawing.SystemColors.Highlight;
+            this.lblChange.ForeColor = System.Drawing.Color.White;
+            this.lblChange.Location = new System.Drawing.Point(881, 357);
+            this.lblChange.Name = "lblChange";
+            this.lblChange.Size = new System.Drawing.Size(19, 13);
+            this.lblChange.TabIndex = 14;
+            this.lblChange.Text = "=>";
+            this.lblChange.Click += new System.EventHandler(this.lblChange_Click);
+            // 
+            // btnChangeID
+            // 
+            this.btnChangeID.Location = new System.Drawing.Point(674, 350);
+            this.btnChangeID.Name = "btnChangeID";
+            this.btnChangeID.Size = new System.Drawing.Size(87, 27);
+            this.btnChangeID.TabIndex = 5;
+            this.btnChangeID.Text = "车号转换";
+            this.btnChangeID.UseVisualStyleBackColor = true;
+            this.btnChangeID.Visible = false;
+            // 
             // frmServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 404);
+            this.Controls.Add(this.lblChange);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lblNums);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.list_Online);
-            this.Controls.Add(this.sendmsg);
+            this.Controls.Add(this.txtICAO24);
+            this.Controls.Add(this.txtOriginalID);
+            this.Controls.Add(this.btnChangeID);
             this.Controls.Add(this.btnCleanText);
             this.Controls.Add(this.send);
             this.Controls.Add(this.statusStrip1);
@@ -406,7 +447,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel statuBar;
         private System.Windows.Forms.Button send;
-        private System.Windows.Forms.TextBox sendmsg;
+        private System.Windows.Forms.TextBox txtOriginalID;
         private System.Windows.Forms.ListBox list_Online;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Timer timerSender;
@@ -428,6 +469,9 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button btnCleanText;
         private System.Windows.Forms.Label lblNums;
+        private System.Windows.Forms.TextBox txtICAO24;
+        private System.Windows.Forms.Label lblChange;
+        private System.Windows.Forms.Button btnChangeID;
     }
 }
 

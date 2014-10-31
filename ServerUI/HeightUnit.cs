@@ -1,4 +1,4 @@
-﻿// Copyright © 2010 onwards, Andrew Whewell
+﻿// Copyright © 2012 onwards, Andrew Whewell
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -16,32 +16,19 @@ using System.Text;
 namespace TCPServer
 {
     /// <summary>
-    /// The interface for objects that hold information about an assigned block
-    /// of ICAO24 codes.
+    /// An enumeration of the different heights that the web site knows about.
     /// </summary>
-    public class CodeBlock
+    /// <remarks>The names of these enumeration values must exactly match the equivalent names in the Javascript produced by the web site.</remarks>
+    public enum HeightUnit
     {
         /// <summary>
-        /// Gets or sets the country that this block is assigned to. This will be null if the
-        /// block is not assigned to a nation.
+        /// Feet.
         /// </summary>
-        public string Country { get; set; }
+        Feet,
 
         /// <summary>
-        /// Gets or sets a flag indicating that this block is used by the nation's military.
+        /// Metres.
         /// </summary>
-        public bool IsMilitary { get; set; }
-    }
-
-    public class CodeBlockBitMask
-    {
-        public CodeBlock CodeBlock;
-        public int BitMask;
-        public int SignificantBitMask;
-
-        public bool CodeMatches(int icao24)
-        {
-            return BitMask == (icao24 & SignificantBitMask);
-        }
+        Metres,
     }
 }

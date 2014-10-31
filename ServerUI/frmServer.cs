@@ -239,6 +239,7 @@ namespace TCPServer
             string ip = m_IdToIP[connectionId];
             //string ip = token.Socket.RemoteEndPoint.ToString();
             AsyncUserToken tokenOut;
+            int count = 0;
             bool IsOnline;
 
             lock (((ICollection)m_sessionTable).SyncRoot)
@@ -248,8 +249,12 @@ namespace TCPServer
                 if (IsOnline)
                 {
                     m_sessionTable.Remove(connectionId);
-                    m_IdToIP.Remove(ip);
-                    UpdateUserNums(m_sessionTable.Count.ToString());
+                    lock (((ICollection)m_IdToIP).SyncRoot)
+                    {
+                        m_IdToIP.Remove(ip);
+                    }
+                    count = m_sessionTable.Count;
+
                 }
                 //if (this.DtuItemList.TryGetValue(id, out dtuInfo))                        
                 //{
@@ -259,19 +264,13 @@ namespace TCPServer
                 //}
             }
 
+
             if (IsOnline)
             {
+                UpdateUserNums(count.ToString());
                 //RemoveListViewItem(dtuInfo.Lvi);
                 UserListOperateDelete(ip);
-                lock (((ICollection)this.m_sessionTable).SyncRoot)
-                {
-                    //Debug.WriteLine("ConnectEnter!");
-                    UpdateUserNums(m_sessionTable.Count.ToString());
-                    //Debug.WriteLine("ConnectExit!");
-                }
             }
-
-
 
             //SetOnlieNum(svr.NumConnectedSockets.ToString());
             ShowClientMessage(string.Format("{0}下线", ip));
@@ -331,43 +330,44 @@ namespace TCPServer
             string ip = token.Socket.RemoteEndPoint.ToString();
             //DtuInfo dtuInfo;
             AsyncUserToken tokenOut;
+            int count = 0;
             bool IsOnline;
             lock (((ICollection)this.m_sessionTable).SyncRoot)
             {
                 //Debug.WriteLine("ConnectEnter!");
                 IsOnline = this.m_sessionTable.TryGetValue(id, out tokenOut);
                 //Debug.WriteLine("ConnectExit!");
+                if (!IsOnline)
+                {
+                    this.m_sessionTable.Add(id, token);
+                    lock (((ICollection)this.m_IdToIP).SyncRoot)
+                    {
+                        m_IdToIP.Add(id, ip);
+                    }
+
+                    count = m_sessionTable.Count;
+
+                }
             }
             //if (this.DtuItemList.TryGetValue(id, out dtuInfo))// 如果列表中已含有该ID号的DTU
-            if (IsOnline)
+            if (!IsOnline)
             {
                 //UserListOperateAdd(token.Socket.RemoteEndPoint.ToString());
-            }
 
-            else
-            {
-                if (m_isListing)
-                {
-                    //ListViewItem lvi = new ListViewItem(new string[] { token.ID, token.PhoneNumber, token.IP, token.LoginTime.ToString(), token.RefreshTime.ToString() });
-                    //lvi.BackColor = Color.LightGreen;// 上线为亮绿
-                    UserListOperateAdd(ip);
+                UpdateUserNums(count.ToString());
+                //ListViewItem lvi = new ListViewItem(new string[] { token.ID, token.PhoneNumber, token.IP, token.LoginTime.ToString(), token.RefreshTime.ToString() });
+                //lvi.BackColor = Color.LightGreen;// 上线为亮绿
+                UserListOperateAdd(ip);
 
 
-                    //dtuInfo = new DtuInfo();
-                    //dtuInfo.Lvi = lvi;
+                //dtuInfo = new DtuInfo();
+                //dtuInfo.Lvi = lvi;
 
-                    lock (((ICollection)m_sessionTable).SyncRoot)
-                    {
-                        this.m_sessionTable.Add(id, token);
-                        m_IdToIP.Add(id, ip);
 
-                        UpdateUserNums(m_sessionTable.Count.ToString());
+                //SetOnlieNum(svr.NumConnectedSockets.ToString());
+                ShowClientMessage(string.Format("{0}上线", ip));
+                StartTimer();
 
-                    }
-                    //SetOnlieNum(svr.NumConnectedSockets.ToString());
-                    ShowClientMessage(string.Format("{0}上线", ip));
-                    StartTimer();
-                }
             }
         }
 
@@ -520,43 +520,20 @@ namespace TCPServer
 
         private void SendBroadMessage(BaseStationMessage message)
         {
-            lock (((ICollection)m_sessionTable).SyncRoot)
+            if (m_listSBS.Count > 0 && m_sessionTable.Count > 0)
             {
-                if (m_listSBS.Count > 0 && m_sessionTable.Count > 0)
+                string strDataLine = String.Concat(message.ToBaseStationString(), "\r\n");
+
+                byte[] bytes = Encoding.ASCII.GetBytes(strDataLine);
+                if (bytes != null && bytes.Length > 0)
                 {
-                    //string strDataLine = m_listSBS[m_sendIndex++];
-                    string strDataLine = String.Concat(message.ToBaseStationString(), "\r\n");
-
-                    //if (m_sendIndex >= m_listSBS.Count) m_sendIndex = 0;
-
-                    //Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
-                    byte[] bytes = Encoding.ASCII.GetBytes(String.Concat(strDataLine, "\r\n"));
-                    if (bytes != null && bytes.Length > 0)
+                    lock (((ICollection)m_sessionTable).SyncRoot)
                     {
-
-                        /*
-                        IDictionaryEnumerator myEnumerator = _sessionTable.GetEnumerator();
-                        while (myEnumerator.MoveNext())
-                        {
-                            EndPoint tempend = (EndPoint)_sessionTable.Values;
-                            Client.SendTo(sendData, tempend);
-                        }
-                         * */
-                        //try
-                        //{
-
-                        //if (m_sessionTable.Count > 0)
-                        //{
                         foreach (AsyncUserToken socketClient in m_sessionTable.Values)
                         {
-
-
                             try
                             {
                                 Send(socketClient.ConnectionId, bytes);
-                                //ShowClientMessage(string.Format("向{0}发送数据:{1}", socketClient.ConnectionId, strDataLine));
-                                //this.richTextBox_log.AppendText(string.Format("<{0}>:向{1}发送数据:{2}\r\n", DateTime.Now.ToString(), id, data));
-                                //SetSedText(string.Format("向{0}发送数据:{1}", id, data));
                             }
                             catch (Exception ee)
                             {
@@ -565,72 +542,43 @@ namespace TCPServer
                             }
                         }
 
-                        ShowClientMessage(strDataLine);
-                        //}
-
-                        //}
-                        //catch
-                        //{
-
-                        //}
                     }
-
-
-                }
-
-                else
-                {
-                    if (m_listSBS.Count <= 0)
-                    {
-                        ShowClientMessage("没有数据内容");
-                    }
-
-                    else if (m_sessionTable.Count <= 0)
-                    {
-                        PauseTimer();
-                    }
-                    //PauseTimer();
-
+                    ShowClientMessage(strDataLine);
                 }
             }
 
+            else
+            {
+                if (m_listSBS.Count <= 0)
+                {
+                    ShowClientMessage("没有数据内容");
+                }
+
+                else if (m_sessionTable.Count <= 0)
+                {
+                    PauseTimer();
+                }
+            }
         }
 
         private void SendBroadMessage()
         {
-            lock (((ICollection)m_sessionTable).SyncRoot)
+            if (m_listSBS.Count > 0 && m_sessionTable.Count > 0)
             {
-                if (m_listSBS.Count > 0 && m_sessionTable.Count > 0)
+                string strDataLine = m_listSBS[m_sendIndex++];
+
+                if (m_sendIndex >= m_listSBS.Count) m_sendIndex = 0;
+
+                Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
+
+                
+                lock (((ICollection)m_sessionTable).SyncRoot)
                 {
-                    string strDataLine = m_listSBS[m_sendIndex++];
-
-                    if (m_sendIndex >= m_listSBS.Count) m_sendIndex = 0;
-
-                    Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
-
-                    /*
-                    IDictionaryEnumerator myEnumerator = _sessionTable.GetEnumerator();
-                    while (myEnumerator.MoveNext())
-                    {
-                        EndPoint tempend = (EndPoint)_sessionTable.Values;
-                        Client.SendTo(sendData, tempend);
-                    }
-                     * */
-                    //try
-                    //{
-
-                    //if (m_sessionTable.Count > 0)
-                    //{
                     foreach (AsyncUserToken socketClient in m_sessionTable.Values)
                     {
-
-
                         try
                         {
                             Send(socketClient.ConnectionId, sendData);
-                            //ShowClientMessage(string.Format("向{0}发送数据:{1}", socketClient.ConnectionId, strDataLine));
-                            //this.richTextBox_log.AppendText(string.Format("<{0}>:向{1}发送数据:{2}\r\n", DateTime.Now.ToString(), id, data));
-                            //SetSedText(string.Format("向{0}发送数据:{1}", id, data));
                         }
                         catch (Exception ee)
                         {
@@ -638,35 +586,22 @@ namespace TCPServer
                             return;
                         }
                     }
-
-                    ShowClientMessage(strDataLine);
-                    //}
-
-                    //}
-                    //catch
-                    //{
-
-                    //}
-
-
                 }
-
-                else
-                {
-                    if (m_listSBS.Count <= 0)
-                    {
-                        ShowClientMessage("没有数据内容");
-                    }
-
-                    else if (m_sessionTable.Count <= 0)
-                    {
-                        PauseTimer();
-                    }
-                    //PauseTimer();
-
-                }
+                ShowClientMessage(strDataLine);
             }
 
+            else
+            {
+                if (m_listSBS.Count <= 0)
+                {
+                    ShowClientMessage("没有数据内容");
+                }
+
+                else if (m_sessionTable.Count <= 0)
+                {
+                    PauseTimer();
+                }
+            }
         }
 
 
@@ -767,7 +702,7 @@ namespace TCPServer
             m_timer = new System.Threading.Timer(timerDelegate, timerObject, System.Threading.Timeout.Infinite, 500);//System.Threading.Timeout.Infinite
 
             cbxIPProtocol.SelectedIndex = 0;
-
+            unassignedCountry.CodeBlock = new CodeBlock();
             unassignedCountry.CodeBlock.Country = "Unassigned Country";
             unassignedCountry.CodeBlock.IsMilitary = false;
             unassignedCountry.SignificantBitMask = 0x7FFFFF;
@@ -804,11 +739,14 @@ namespace TCPServer
             message.MessageGenerated = messageReceivedUtc;
             message.MessageType = BaseStationMessageType.Transmission;
             message.TransmissionType = BaseStationTransmissionType.SurfacePosition;
-            message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
-            message.GroundSpeed = gpsSMessage.Speed;
-            message.Track = (float)gpsSMessage.OriginalDirection;
-            message.Latitude = (float)gpsSMessage.OriginalLat;
-            message.Longitude = (float)gpsSMessage.OriginalLng;
+            //message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
+            message.Icao24 = txtICAO24.Text;
+            message.Altitude = (int)Math.Round(UnitConverter.ConvertHeight((double)gpsSMessage.Height, HeightUnit.Metres, HeightUnit.Feet), 0);
+            message.GroundSpeed = Round.GroundSpeed((float)UnitConverter.ConvertSpeed(gpsSMessage.Speed, SpeedUnit.KilometresPerHour, SpeedUnit.Knots));
+            message.Track = Round.Track((float)gpsSMessage.OriginalDirection);
+            message.Latitude = Round.Coordinate((double)gpsSMessage.OriginalLat);
+            message.Longitude = Round.Coordinate((double)gpsSMessage.OriginalLng);
+            message.OnGround = true;
 
             return message;
         }
@@ -816,9 +754,11 @@ namespace TCPServer
         private void SendClick(object sender, EventArgs e)
         {
             GPS gpsMessage = new GPS();
+            BaseStationMessage message;
 
-            BaseStationMessage message = CreateBaseStationMessage(DateTime.UtcNow, gpsMessage);
-
+            message = CreateBaseStationCallsignMessage(DateTime.UtcNow, gpsMessage);
+            SendBroadMessage(message);
+            message = CreateBaseStationSurfacePositionMessage(DateTime.UtcNow, gpsMessage);
             SendBroadMessage(message);
 
         }
@@ -954,6 +894,16 @@ namespace TCPServer
         private void txtShowInfo_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnChangeID_Click(object sender, EventArgs e)
+        {
+            txtICAO24.Text = (int.Parse(txtOriginalID.Text) & unassignedCountry.SignificantBitMask).ToString("X6");
+        }
+
+        private void lblChange_Click(object sender, EventArgs e)
+        {
+            txtICAO24.Text = (int.Parse(txtOriginalID.Text) & unassignedCountry.SignificantBitMask).ToString("X6");
         }
     }
 
