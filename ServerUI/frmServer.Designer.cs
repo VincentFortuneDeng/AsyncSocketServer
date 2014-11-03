@@ -31,10 +31,10 @@
             this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.txtShowInfo = new System.Windows.Forms.RichTextBox();
-            this.startService = new System.Windows.Forms.Button();
+            this.btnStartService = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.statuBar = new System.Windows.Forms.ToolStripStatusLabel();
-            this.send = new System.Windows.Forms.Button();
+            this.btnSend = new System.Windows.Forms.Button();
             this.txtOriginalID = new System.Windows.Forms.TextBox();
             this.list_Online = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -58,14 +58,31 @@
             this.btnCleanText = new System.Windows.Forms.Button();
             this.lblNums = new System.Windows.Forms.Label();
             this.txtICAO24 = new System.Windows.Forms.TextBox();
-            this.lblChange = new System.Windows.Forms.Label();
-            this.btnChangeID = new System.Windows.Forms.Button();
+            this.lblChangeID = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.txtWGSLat = new System.Windows.Forms.TextBox();
+            this.txtWGSLng = new System.Windows.Forms.TextBox();
+            this.lblChangeCoordinate = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtGCJLat = new System.Windows.Forms.TextBox();
+            this.txtGCJLng = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtServerPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtClientCapacity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCapacityBuffer)).BeginInit();
+            this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -81,23 +98,23 @@
             // txtShowInfo
             // 
             this.txtShowInfo.BackColor = System.Drawing.SystemColors.Info;
-            this.txtShowInfo.Location = new System.Drawing.Point(348, 27);
+            this.txtShowInfo.Location = new System.Drawing.Point(324, 27);
             this.txtShowInfo.Name = "txtShowInfo";
             this.txtShowInfo.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtShowInfo.Size = new System.Drawing.Size(648, 320);
+            this.txtShowInfo.Size = new System.Drawing.Size(677, 290);
             this.txtShowInfo.TabIndex = 2;
             this.txtShowInfo.Text = "";
             this.txtShowInfo.TextChanged += new System.EventHandler(this.txtShowInfo_TextChanged);
             // 
-            // startService
+            // btnStartService
             // 
-            this.startService.Location = new System.Drawing.Point(17, 331);
-            this.startService.Name = "startService";
-            this.startService.Size = new System.Drawing.Size(301, 46);
-            this.startService.TabIndex = 3;
-            this.startService.Text = "开始服务";
-            this.startService.UseVisualStyleBackColor = true;
-            this.startService.Click += new System.EventHandler(this.StartService_Click);
+            this.btnStartService.Location = new System.Drawing.Point(17, 327);
+            this.btnStartService.Name = "btnStartService";
+            this.btnStartService.Size = new System.Drawing.Size(301, 48);
+            this.btnStartService.TabIndex = 3;
+            this.btnStartService.Text = "开始服务";
+            this.btnStartService.UseVisualStyleBackColor = true;
+            this.btnStartService.Click += new System.EventHandler(this.StartService_Click);
             // 
             // statusStrip1
             // 
@@ -115,22 +132,23 @@
             this.statuBar.Size = new System.Drawing.Size(67, 17);
             this.statuBar.Text = "未启动服务";
             // 
-            // send
+            // btnSend
             // 
-            this.send.Location = new System.Drawing.Point(348, 350);
-            this.send.Name = "send";
-            this.send.Size = new System.Drawing.Size(87, 27);
-            this.send.TabIndex = 5;
-            this.send.Text = "发送广播消息";
-            this.send.UseVisualStyleBackColor = true;
-            this.send.Click += new System.EventHandler(this.SendClick);
+            this.btnSend.Location = new System.Drawing.Point(324, 327);
+            this.btnSend.Name = "btnSend";
+            this.btnSend.Size = new System.Drawing.Size(87, 48);
+            this.btnSend.TabIndex = 5;
+            this.btnSend.Text = "发送广播消息";
+            this.btnSend.UseVisualStyleBackColor = true;
+            this.btnSend.Click += new System.EventHandler(this.SendClick);
             // 
             // txtOriginalID
             // 
-            this.txtOriginalID.Location = new System.Drawing.Point(786, 353);
+            this.txtOriginalID.Location = new System.Drawing.Point(28, 26);
             this.txtOriginalID.Name = "txtOriginalID";
-            this.txtOriginalID.Size = new System.Drawing.Size(89, 20);
+            this.txtOriginalID.Size = new System.Drawing.Size(40, 20);
             this.txtOriginalID.TabIndex = 6;
+            this.txtOriginalID.Text = "1201";
             // 
             // list_Online
             // 
@@ -347,7 +365,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(350, 6);
+            this.label6.Location = new System.Drawing.Point(324, 6);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(55, 13);
             this.label6.TabIndex = 13;
@@ -355,9 +373,9 @@
             // 
             // btnCleanText
             // 
-            this.btnCleanText.Location = new System.Drawing.Point(568, 350);
+            this.btnCleanText.Location = new System.Drawing.Point(423, 327);
             this.btnCleanText.Name = "btnCleanText";
-            this.btnCleanText.Size = new System.Drawing.Size(87, 27);
+            this.btnCleanText.Size = new System.Drawing.Size(87, 48);
             this.btnCleanText.TabIndex = 5;
             this.btnCleanText.Text = "清除消息";
             this.btnCleanText.UseVisualStyleBackColor = true;
@@ -373,52 +391,194 @@
             // 
             // txtICAO24
             // 
-            this.txtICAO24.Location = new System.Drawing.Point(906, 353);
+            this.txtICAO24.Location = new System.Drawing.Point(145, 26);
             this.txtICAO24.Name = "txtICAO24";
-            this.txtICAO24.Size = new System.Drawing.Size(89, 20);
+            this.txtICAO24.Size = new System.Drawing.Size(44, 20);
             this.txtICAO24.TabIndex = 6;
             // 
-            // lblChange
+            // lblChangeID
             // 
-            this.lblChange.AutoSize = true;
-            this.lblChange.BackColor = System.Drawing.SystemColors.Highlight;
-            this.lblChange.ForeColor = System.Drawing.Color.White;
-            this.lblChange.Location = new System.Drawing.Point(881, 357);
-            this.lblChange.Name = "lblChange";
-            this.lblChange.Size = new System.Drawing.Size(19, 13);
-            this.lblChange.TabIndex = 14;
-            this.lblChange.Text = "=>";
-            this.lblChange.Click += new System.EventHandler(this.lblChange_Click);
+            this.lblChangeID.AutoSize = true;
+            this.lblChangeID.BackColor = System.Drawing.SystemColors.Highlight;
+            this.lblChangeID.ForeColor = System.Drawing.Color.White;
+            this.lblChangeID.Location = new System.Drawing.Point(72, 30);
+            this.lblChangeID.Name = "lblChangeID";
+            this.lblChangeID.Size = new System.Drawing.Size(19, 13);
+            this.lblChangeID.TabIndex = 14;
+            this.lblChangeID.Text = "=>";
+            this.lblChangeID.Click += new System.EventHandler(this.lblChange_Click);
             // 
-            // btnChangeID
+            // label7
             // 
-            this.btnChangeID.Location = new System.Drawing.Point(674, 350);
-            this.btnChangeID.Name = "btnChangeID";
-            this.btnChangeID.Size = new System.Drawing.Size(87, 27);
-            this.btnChangeID.TabIndex = 5;
-            this.btnChangeID.Text = "车号转换";
-            this.btnChangeID.UseVisualStyleBackColor = true;
-            this.btnChangeID.Visible = false;
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 30);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(18, 13);
+            this.label7.TabIndex = 15;
+            this.label7.Text = "ID";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(97, 30);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 13);
+            this.label8.TabIndex = 15;
+            this.label8.Text = "ICAO24";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.label7);
+            this.groupBox3.Controls.Add(this.label8);
+            this.groupBox3.Controls.Add(this.txtOriginalID);
+            this.groupBox3.Controls.Add(this.txtICAO24);
+            this.groupBox3.Controls.Add(this.lblChangeID);
+            this.groupBox3.Location = new System.Drawing.Point(801, 317);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(200, 63);
+            this.groupBox3.TabIndex = 16;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "ICAO24生成";
+            // 
+            // txtWGSLat
+            // 
+            this.txtWGSLat.Location = new System.Drawing.Point(51, 14);
+            this.txtWGSLat.Name = "txtWGSLat";
+            this.txtWGSLat.Size = new System.Drawing.Size(58, 20);
+            this.txtWGSLat.TabIndex = 17;
+            this.txtWGSLat.Text = "40.02564";
+            // 
+            // txtWGSLng
+            // 
+            this.txtWGSLng.Location = new System.Drawing.Point(51, 38);
+            this.txtWGSLng.Name = "txtWGSLng";
+            this.txtWGSLng.Size = new System.Drawing.Size(58, 20);
+            this.txtWGSLng.TabIndex = 18;
+            this.txtWGSLng.Text = "124.28697";
+            // 
+            // lblChangeCoordinate
+            // 
+            this.lblChangeCoordinate.AutoSize = true;
+            this.lblChangeCoordinate.BackColor = System.Drawing.SystemColors.Highlight;
+            this.lblChangeCoordinate.ForeColor = System.Drawing.Color.White;
+            this.lblChangeCoordinate.Location = new System.Drawing.Point(646, 347);
+            this.lblChangeCoordinate.Name = "lblChangeCoordinate";
+            this.lblChangeCoordinate.Size = new System.Drawing.Size(19, 13);
+            this.lblChangeCoordinate.TabIndex = 19;
+            this.lblChangeCoordinate.Text = "=>";
+            this.lblChangeCoordinate.Click += new System.EventHandler(this.lblChangeCoordinate_Click);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label11);
+            this.groupBox4.Controls.Add(this.label10);
+            this.groupBox4.Controls.Add(this.txtWGSLat);
+            this.groupBox4.Controls.Add(this.txtWGSLng);
+            this.groupBox4.Location = new System.Drawing.Point(522, 317);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(112, 63);
+            this.groupBox4.TabIndex = 22;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "WGS-84";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(1, 42);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(50, 13);
+            this.label11.TabIndex = 15;
+            this.label11.Text = "longitude";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(0, 18);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(41, 13);
+            this.label10.TabIndex = 15;
+            this.label10.Text = "latitude";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.label12);
+            this.groupBox5.Controls.Add(this.label13);
+            this.groupBox5.Controls.Add(this.txtGCJLat);
+            this.groupBox5.Controls.Add(this.txtGCJLng);
+            this.groupBox5.Location = new System.Drawing.Point(677, 317);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(112, 63);
+            this.groupBox5.TabIndex = 22;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "GCJ-02";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(1, 42);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(50, 13);
+            this.label12.TabIndex = 15;
+            this.label12.Text = "longitude";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(0, 18);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(41, 13);
+            this.label13.TabIndex = 15;
+            this.label13.Text = "latitude";
+            this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtGCJLat
+            // 
+            this.txtGCJLat.Location = new System.Drawing.Point(51, 14);
+            this.txtGCJLat.Name = "txtGCJLat";
+            this.txtGCJLat.Size = new System.Drawing.Size(58, 20);
+            this.txtGCJLat.TabIndex = 17;
+            // 
+            // txtGCJLng
+            // 
+            this.txtGCJLng.Location = new System.Drawing.Point(51, 38);
+            this.txtGCJLng.Name = "txtGCJLng";
+            this.txtGCJLng.Size = new System.Drawing.Size(58, 20);
+            this.txtGCJLng.TabIndex = 18;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(542, 6);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(44, 20);
+            this.textBox1.TabIndex = 23;
+            this.textBox1.Text = "FF";
+            this.textBox1.Visible = false;
             // 
             // frmServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 404);
-            this.Controls.Add(this.lblChange);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.groupBox5);
+            this.Controls.Add(this.groupBox4);
+            this.Controls.Add(this.lblChangeCoordinate);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lblNums);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.list_Online);
-            this.Controls.Add(this.txtICAO24);
-            this.Controls.Add(this.txtOriginalID);
-            this.Controls.Add(this.btnChangeID);
             this.Controls.Add(this.btnCleanText);
-            this.Controls.Add(this.send);
+            this.Controls.Add(this.btnSend);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.startService);
+            this.Controls.Add(this.btnStartService);
             this.Controls.Add(this.txtShowInfo);
             this.MaximizeBox = false;
             this.Name = "frmServer";
@@ -434,6 +594,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.txtServerPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtClientCapacity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCapacityBuffer)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -443,10 +609,10 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RichTextBox txtShowInfo;
-        private System.Windows.Forms.Button startService;
+        private System.Windows.Forms.Button btnStartService;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel statuBar;
-        private System.Windows.Forms.Button send;
+        private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.TextBox txtOriginalID;
         private System.Windows.Forms.ListBox list_Online;
         private System.Windows.Forms.Label label2;
@@ -470,8 +636,22 @@
         private System.Windows.Forms.Button btnCleanText;
         private System.Windows.Forms.Label lblNums;
         private System.Windows.Forms.TextBox txtICAO24;
-        private System.Windows.Forms.Label lblChange;
-        private System.Windows.Forms.Button btnChangeID;
+        private System.Windows.Forms.Label lblChangeID;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox txtWGSLat;
+        private System.Windows.Forms.TextBox txtWGSLng;
+        private System.Windows.Forms.Label lblChangeCoordinate;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txtGCJLat;
+        private System.Windows.Forms.TextBox txtGCJLng;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
 

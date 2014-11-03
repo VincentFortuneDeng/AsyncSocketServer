@@ -59,6 +59,7 @@
     <Compile Include="BaseStationStatusCode.cs" />
     <Compile Include="BaseStationSupplementaryMessage.cs" />
     <Compile Include="BaseStationTransmissionType.cs" />
+    <Compile Include="ChinaMapShift.cs" />
     <Compile Include="CodeBlock.cs" />
     <Compile Include="DistanceUnit.cs" />
     <Compile Include="GaussClass.cs" />

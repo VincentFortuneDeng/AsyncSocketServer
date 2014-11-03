@@ -52,6 +52,9 @@ namespace TCPServer
 
         System.Threading.Timer m_Timer;
 
+        TextWriterTraceListener m_TraceListener = new TextWriterTraceListener(System.IO.File.CreateText("BroadcastBaseStationServer.log"));
+        //TextWriterTraceListener m_DebugListener = new TextWriterTraceListener(System.IO.File.CreateText("BroadcastBaseStationMessage.log"));
+
 
         //用来设置服务端监听的端口号
         //private int ServerPort
@@ -116,15 +119,17 @@ namespace TCPServer
                     throw asyncSocketException;//启动失败
                 }
                 ShowClientMessage(string.Format("启动成功,端口号:{0}",m_port.ToString()));
+                LogBroadcastServerStatus(string.Format("启动成功,端口号:{0}",m_port.ToString()));
 
                 m_sendIndex = 0;
                 statuBar.Text = "服务已启动，等待客户端连接";
                 m_isListing = true;
-                startService.Text = "停止服务";
+                btnStartService.Text = "停止服务";
 
                 RestTimer();
             } catch(Exception e) {
                 ShowClientMessage("启动失败:" + e.Message);
+                LogBroadcastServerStatus("启动失败:" + e.Message);
 
             }
             //m_mode = mode;//数据模式
@@ -248,13 +253,18 @@ namespace TCPServer
 
 
             if(IsOnline) {
-                UpdateUserNums(count.ToString());
                 //RemoveListViewItem(dtuInfo.Lvi);
                 UserListOperateDelete(ip);
+
+                ShowClientMessage(string.Format("{0}下线",ip));
+                UpdateUserNums(count.ToString());
+
+                LogBroadcastServerStatus(string.Format("{0}下线",ip));
+                LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}",count.ToString()));
             }
 
             //SetOnlieNum(svr.NumConnectedSockets.ToString());
-            ShowClientMessage(string.Format("{0}下线",ip));
+
 
             //DtuArgs dtuArgs;
             //lock (((ICollection)m_hsableInneridToDtu).SyncRoot)
@@ -297,10 +307,12 @@ namespace TCPServer
             if(sender != null)//服务器错误
             {
                 ShowClientMessage(string.Format("服务器错误:{0}",tokenError.exception.Message));
+                LogBroadcastServerStatus(string.Format("服务器错误:{0}",tokenError.exception.Message));
             } else//客户端错误
             {
                 //AsyncUserToken token=(AsyncUserToken)sender;
                 ShowClientMessage(string.Format("客户端错误:{0}",tokenError.exception.Message));
+                LogBroadcastServerStatus(string.Format("客户端错误:{0}",tokenError.exception.Message));
             }
         }
 
@@ -330,7 +342,7 @@ namespace TCPServer
             if(!IsOnline) {
                 //UserListOperateAdd(token.Socket.RemoteEndPoint.ToString());
 
-                UpdateUserNums(count.ToString());
+
                 //ListViewItem lvi = new ListViewItem(new string[] { token.ID, token.PhoneNumber, token.IP, token.LoginTime.ToString(), token.RefreshTime.ToString() });
                 //lvi.BackColor = Color.LightGreen;// 上线为亮绿
                 UserListOperateAdd(ip);
@@ -342,6 +354,11 @@ namespace TCPServer
 
                 //SetOnlieNum(svr.NumConnectedSockets.ToString());
                 ShowClientMessage(string.Format("{0}上线",ip));
+                UpdateUserNums(count.ToString());
+
+                LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}",count.ToString()));
+                LogBroadcastServerStatus(string.Format("{0}上线",ip));
+
                 StartTimer();
 
             }
@@ -427,15 +444,18 @@ namespace TCPServer
                 //this.IsTimeOutTimer.Stop();
                 this.m_Server.Shutdown();
                 ShowClientMessage("停止成功");
+                LogBroadcastServerStatus("停止成功");
 
                 ShowClientMessage("服务器已停止服务" + "\r\n");
+                LogBroadcastServerStatus("服务器已停止服务" + "\r\n");
                 m_isListing = false;
-                startService.Text = "开始服务";
+                btnStartService.Text = "开始服务";
                 statuBar.Text = "服务已停止";
 
                 PauseTimer();
             } catch(Exception e) {
                 ShowClientMessage("停止失败:" + e.Message);
+                LogBroadcastServerStatus("停止失败:" + e.Message);
             } finally {
                 lock(((ICollection)list_Online.Items).SyncRoot) {
                     list_Online.Items.Clear();
@@ -483,12 +503,15 @@ namespace TCPServer
                                 Send(socketClient.ConnectionId,bytes);
                             } catch(Exception ee) {
                                 ShowClientMessage("发送数据出现异常：" + ee.Message);
+                                LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
                                 return;
                             }
                         }
 
                     }
                     ShowClientMessage(strDataLine);
+                    Debug.WriteLine(strDataLine);
+
                 }
             }
         }
@@ -509,11 +532,13 @@ namespace TCPServer
                             Send(socketClient.ConnectionId,sendData);
                         } catch(Exception ee) {
                             ShowClientMessage("发送数据出现异常：" + ee.Message);
+                            LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
                             return;
                         }
                     }
                 }
                 ShowClientMessage(strDataLine);
+                Debug.WriteLine(strDataLine);
             } else {
                 if(m_listSBS.Count <= 0) {
                     ShowClientMessage("没有数据内容");
@@ -523,7 +548,10 @@ namespace TCPServer
             }
         }
 
-
+        private void LogBroadcastServerStatus(string message)
+        {
+            Trace.WriteLine(string.Format("<{0}>:{1}",DateTime.Now.ToString(),message));
+        }
 
         //用来往richtextbox框中显示消息
         private void ShowClientMessage(string message)
@@ -610,6 +638,13 @@ namespace TCPServer
             unassignedCountry.SignificantBitMask = 0x7FFFFF;
             unassignedCountry.BitMask = 0x0;
 
+            Trace.Listeners.Add(m_TraceListener);
+            //Debug.Listeners.Add(m_TraceListener);
+            //Debug.Listeners.Add(m_DebugListener);
+
+            //Trace.AutoFlush=true;
+            Debug.AutoFlush=true;
+
         }
 
         //窗口关闭时中止线程。
@@ -641,8 +676,8 @@ namespace TCPServer
             message.MessageGenerated = messageReceivedUtc;
             message.MessageType = BaseStationMessageType.Transmission;
             message.TransmissionType = BaseStationTransmissionType.SurfacePosition;
-            //message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
-            message.Icao24 = txtICAO24.Text;
+            message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
+            //message.Icao24 = txtICAO24.Text;
             message.Altitude = (int)Math.Round(UnitConverter.ConvertHeight((double)gpsSMessage.Height,HeightUnit.Metres,HeightUnit.Feet),0);
             message.GroundSpeed = Round.GroundSpeed((float)UnitConverter.ConvertSpeed(gpsSMessage.Speed,SpeedUnit.KilometresPerHour,SpeedUnit.Knots));
             message.Track = Round.Track((float)gpsSMessage.OriginalDirection);
@@ -656,6 +691,11 @@ namespace TCPServer
         private void SendClick(object sender,EventArgs e)
         {
             GPS gpsMessage = new GPS();
+            gpsMessage.CarID=uint.Parse(txtOriginalID.Text);
+            gpsMessage.OriginalLat=decimal.Parse(txtWGSLat.Text);
+            gpsMessage.OriginalLng=decimal.Parse(txtWGSLng.Text);
+            gpsMessage.Speed=0;
+            gpsMessage.Height=0;
             BaseStationMessage message;
 
             message = CreateBaseStationCallsignMessage(DateTime.UtcNow,gpsMessage);
@@ -789,6 +829,30 @@ namespace TCPServer
         private void lblChange_Click(object sender,EventArgs e)
         {
             txtICAO24.Text = (int.Parse(txtOriginalID.Text) & unassignedCountry.SignificantBitMask).ToString("X6");
+        }
+
+        private void lblChangeCoordinate_Click(object sender,EventArgs e)
+        {
+            ChinaMapShift.Location wgsLoc=new ChinaMapShift.Location();
+            ChinaMapShift.Location gcjLoc=new ChinaMapShift.Location();
+            try {
+                wgsLoc.Lat=double.Parse(txtWGSLat.Text);
+                wgsLoc.Lng=double.Parse(txtWGSLng.Text);
+
+                gcjLoc= ChinaMapShift.TransformFromWGSToGCJ(wgsLoc);
+
+                txtGCJLat.Text=gcjLoc.Lat.ToString();
+                txtGCJLng.Text=gcjLoc.Lng.ToString();
+
+            } catch {
+                MessageBox.Show("坐标输入格式有误");
+            }
+
+        }
+
+        private void frmServer_Click(object sender,EventArgs e)
+        {
+            MessageBox.Show(Convert.ToInt32(textBox1.Text,16).ToString());
         }
     }
 
