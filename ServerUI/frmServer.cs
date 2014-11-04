@@ -14,11 +14,17 @@ using System.IO;
 using AsyncSockets;
 using AsyncSockets.AsyncSocketServer;
 using System.Diagnostics;
+using InterfaceFactory;
+using TCPServer.Library;
+using TCPServer.Interface;
+
 
 namespace TCPServer
 {
-    public partial class frmServer:Form
+    public partial class frmServer : Form
     {
+        private IClock m_clock;
+        private Plugin m_plugin;
         private int m_numConnections;
         private int m_bufferSize;
         private IPEndPoint m_localEndPoint;
@@ -36,8 +42,8 @@ namespace TCPServer
         //private IPEndPoint m_localEP;
         //private int m_localPort;
         //private EndPoint m_remote;
-        private Dictionary<string,AsyncUserToken> m_sessionTable;
-        private Dictionary<string,string> m_IdToIP;
+        private Dictionary<string, AsyncUserToken> m_sessionTable;
+        private Dictionary<string, string> m_IdToIP;
         //private object m_lockSessionTable=new object();
 
         private List<string> m_listSBS = new List<string>();
@@ -69,6 +75,8 @@ namespace TCPServer
         public frmServer()
         {
             InitializeComponent();
+
+            Implementations.Register(Factory.Singleton);
         }
 
         private void StartService()
@@ -81,8 +89,8 @@ namespace TCPServer
             m_bufferSize = (int)numCapacityBuffer.Value;
 
             try {
-                m_sessionTable = new Dictionary<string,AsyncUserToken>();
-                m_IdToIP = new Dictionary<string,string>();
+                m_sessionTable = new Dictionary<string, AsyncUserToken>();
+                m_IdToIP = new Dictionary<string, string>();
                 this.list_Online.Items.Clear();
 
                 if(m_Server != null) {
@@ -93,15 +101,15 @@ namespace TCPServer
                 // 初始化中心服务器
 
                 if(m_addressFamily.ToLower().Equals("ipv4")) {
-                    m_localEndPoint = new IPEndPoint(IPAddress.Any,m_port);
+                    m_localEndPoint = new IPEndPoint(IPAddress.Any, m_port);
                 } else if(m_addressFamily.ToLower().Equals("ipv6")) {
-                    m_localEndPoint = new IPEndPoint(IPAddress.IPv6Any,m_port);
+                    m_localEndPoint = new IPEndPoint(IPAddress.IPv6Any, m_port);
                 } else {
                     throw new ArgumentException("被指定的地址协议无效");
                 }
 
                 //this.server = new DSCServer(m_numConnections, m_receiveSize);//创建DSCServer对象(基础层通讯服务器)
-                m_Server = new AsyncServer(m_numConnections,m_bufferSize);
+                m_Server = new AsyncServer(m_numConnections, m_bufferSize);
 
                 this.m_Server.OnDataReceived += new EventHandler<AsyncUserToken>(this.svr_OnDataReceived);//注册接收到数据事件
                 this.m_Server.OnDisconnected += new EventHandler<AsyncUserToken>(this.svr_OnDisconnected);//注册断开连接事件
@@ -118,8 +126,8 @@ namespace TCPServer
                     m_isListing = false;
                     throw asyncSocketException;//启动失败
                 }
-                ShowClientMessage(string.Format("启动成功,端口号:{0}",m_port.ToString()));
-                LogBroadcastServerStatus(string.Format("启动成功,端口号:{0}",m_port.ToString()));
+                ShowClientMessage(string.Format("启动成功,端口号:{0}", m_port.ToString()));
+                LogBroadcastServerStatus(string.Format("启动成功,端口号:{0}", m_port.ToString()));
 
                 m_sendIndex = 0;
                 statuBar.Text = "服务已启动，等待客户端连接";
@@ -159,7 +167,7 @@ namespace TCPServer
 
         }
 
-        private void svr_OnDataReceived(object sender,AsyncUserToken token)
+        private void svr_OnDataReceived(object sender, AsyncUserToken token)
         {
             //bool isRegistered;//是否存在Dtu
             //DtuArgs dtuArgs;
@@ -170,7 +178,7 @@ namespace TCPServer
             //byte[] receiveBytes = new byte[token.BytesReceived];
             //Array.Copy(token.ReceiveBuffer, token.Offset, receiveBytes, 0, token.BytesReceived);
 
-            string strContent = System.Text.Encoding.ASCII.GetString(token.ReceiveBuffer,token.Offset,token.BytesReceived);
+            string strContent = System.Text.Encoding.ASCII.GetString(token.ReceiveBuffer, token.Offset, token.BytesReceived);
 
             if(strContent.Length > 1) {
                 //All of the data has been read, so displays it to the console 
@@ -219,7 +227,7 @@ namespace TCPServer
 
         }
 
-        private void svr_OnDisconnected(object sender,AsyncUserToken token)
+        private void svr_OnDisconnected(object sender, AsyncUserToken token)
         {
             //bool isRegistered;// 是否注册过Dtu
             string connectionId = token.ConnectionId;
@@ -230,12 +238,12 @@ namespace TCPServer
             bool IsOnline;
 
             lock(((ICollection)m_sessionTable).SyncRoot) {
-                IsOnline = this.m_sessionTable.TryGetValue(connectionId,out tokenOut);
+                IsOnline = this.m_sessionTable.TryGetValue(connectionId, out tokenOut);
 
                 if(IsOnline) {
                     m_sessionTable.Remove(connectionId);
                     lock(((ICollection)m_IdToIP).SyncRoot) {
-                        m_IdToIP.TryGetValue(connectionId,out ip);
+                        m_IdToIP.TryGetValue(connectionId, out ip);
                         if(!string.IsNullOrEmpty(ip)) {
                             m_IdToIP.Remove(ip);
                         }
@@ -256,11 +264,11 @@ namespace TCPServer
                 //RemoveListViewItem(dtuInfo.Lvi);
                 UserListOperateDelete(ip);
 
-                ShowClientMessage(string.Format("{0}下线",ip));
+                ShowClientMessage(string.Format("{0}下线", ip));
                 UpdateUserNums(count.ToString());
 
-                LogBroadcastServerStatus(string.Format("{0}下线",ip));
-                LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}",count.ToString()));
+                LogBroadcastServerStatus(string.Format("{0}下线", ip));
+                LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}", count.ToString()));
             }
 
             //SetOnlieNum(svr.NumConnectedSockets.ToString());
@@ -302,21 +310,21 @@ namespace TCPServer
 
         }
 
-        private void svr_OnError(object sender,AsyncSocketErrorEventArgs tokenError)
+        private void svr_OnError(object sender, AsyncSocketErrorEventArgs tokenError)
         {
             if(sender != null)//服务器错误
             {
-                ShowClientMessage(string.Format("服务器错误:{0}",tokenError.exception.Message));
-                LogBroadcastServerStatus(string.Format("服务器错误:{0}",tokenError.exception.Message));
+                ShowClientMessage(string.Format("服务器错误:{0}", tokenError.exception.Message));
+                LogBroadcastServerStatus(string.Format("服务器错误:{0}", tokenError.exception.Message));
             } else//客户端错误
             {
                 //AsyncUserToken token=(AsyncUserToken)sender;
-                ShowClientMessage(string.Format("客户端错误:{0}",tokenError.exception.Message));
-                LogBroadcastServerStatus(string.Format("客户端错误:{0}",tokenError.exception.Message));
+                ShowClientMessage(string.Format("客户端错误:{0}", tokenError.exception.Message));
+                LogBroadcastServerStatus(string.Format("客户端错误:{0}", tokenError.exception.Message));
             }
         }
 
-        void svr_OnClientConnected(object sender,AsyncUserToken token)
+        void svr_OnClientConnected(object sender, AsyncUserToken token)
         {
             string id = token.ConnectionId;
             string ip = token.Socket.RemoteEndPoint.ToString();
@@ -326,12 +334,12 @@ namespace TCPServer
             bool IsOnline;
             lock(((ICollection)this.m_sessionTable).SyncRoot) {
                 //Debug.WriteLine("ConnectEnter!");
-                IsOnline = this.m_sessionTable.TryGetValue(id,out tokenOut);
+                IsOnline = this.m_sessionTable.TryGetValue(id, out tokenOut);
                 //Debug.WriteLine("ConnectExit!");
                 if(!IsOnline) {
-                    this.m_sessionTable.Add(id,token);
+                    this.m_sessionTable.Add(id, token);
                     lock(((ICollection)this.m_IdToIP).SyncRoot) {
-                        m_IdToIP.Add(id,ip);
+                        m_IdToIP.Add(id, ip);
                     }
 
                     count = m_sessionTable.Count;
@@ -353,11 +361,11 @@ namespace TCPServer
 
 
                 //SetOnlieNum(svr.NumConnectedSockets.ToString());
-                ShowClientMessage(string.Format("{0}上线",ip));
+                ShowClientMessage(string.Format("{0}上线", ip));
                 UpdateUserNums(count.ToString());
 
-                LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}",count.ToString()));
-                LogBroadcastServerStatus(string.Format("{0}上线",ip));
+                LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}", count.ToString()));
+                LogBroadcastServerStatus(string.Format("{0}上线", ip));
 
                 StartTimer();
 
@@ -387,7 +395,7 @@ namespace TCPServer
         }
 
         //开始停止服务按钮
-        private void StartService_Click(object sender,EventArgs e)
+        private void StartService_Click(object sender, EventArgs e)
         {
             //ThreadStart threadListenDelegate;
 
@@ -469,18 +477,18 @@ namespace TCPServer
         {
             this.SendBroadMessage();
         }
-        public bool Send(string id,byte[] dataBytes)
+        public bool Send(string id, byte[] dataBytes)
         {
             id = id.Trim();
             AsyncUserToken token;
 
-            if(!m_sessionTable.TryGetValue(id,out token)) {
+            if(!m_sessionTable.TryGetValue(id, out token)) {
                 return false;
             }
 
             try {
                 try {
-                    this.m_Server.Send(id,dataBytes);
+                    this.m_Server.Send(id, dataBytes);
                     return true;//发送成功                    
                 } catch(AsyncSocketException asyncSocketException) {
                     throw asyncSocketException;
@@ -493,14 +501,14 @@ namespace TCPServer
         private void SendBroadMessage(BaseStationMessage message)
         {
             if(m_sessionTable.Count > 0) {
-                string strDataLine = String.Concat(message.ToBaseStationString(),"\r\n");
+                string strDataLine = String.Concat(message.ToBaseStationString(), "\r\n");
 
                 byte[] bytes = Encoding.ASCII.GetBytes(strDataLine);
                 if(bytes != null && bytes.Length > 0) {
                     lock(((ICollection)m_sessionTable).SyncRoot) {
                         foreach(AsyncUserToken socketClient in m_sessionTable.Values) {
                             try {
-                                Send(socketClient.ConnectionId,bytes);
+                                Send(socketClient.ConnectionId, bytes);
                             } catch(Exception ee) {
                                 ShowClientMessage("发送数据出现异常：" + ee.Message);
                                 LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
@@ -529,7 +537,7 @@ namespace TCPServer
                 lock(((ICollection)m_sessionTable).SyncRoot) {
                     foreach(AsyncUserToken socketClient in m_sessionTable.Values) {
                         try {
-                            Send(socketClient.ConnectionId,sendData);
+                            Send(socketClient.ConnectionId, sendData);
                         } catch(Exception ee) {
                             ShowClientMessage("发送数据出现异常：" + ee.Message);
                             LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
@@ -550,7 +558,7 @@ namespace TCPServer
 
         private void LogBroadcastServerStatus(string message)
         {
-            Trace.WriteLine(string.Format("<{0}>:{1}",DateTime.Now.ToString(),message));
+            Trace.WriteLine(string.Format("<{0}>:{1}", DateTime.Now.ToString(), message));
         }
 
         //用来往richtextbox框中显示消息
@@ -559,10 +567,10 @@ namespace TCPServer
             //在线程里以安全方式调用控件
             if(txtShowInfo.InvokeRequired) {
                 UserInterfaceInvoke userInterfaceInvoke = new UserInterfaceInvoke(ShowClientMessage);
-                txtShowInfo.Invoke(userInterfaceInvoke,new object[] { message });
+                txtShowInfo.Invoke(userInterfaceInvoke, new object[] { message });
             } else {
                 //txtShowInfo.AppendText(message);
-                this.txtShowInfo.AppendText(string.Format("<{0}>:{1}\r\n",DateTime.Now.ToString(),message));
+                this.txtShowInfo.AppendText(string.Format("<{0}>:{1}\r\n", DateTime.Now.ToString(), message));
 
                 SetScroll();
             }
@@ -571,7 +579,7 @@ namespace TCPServer
         private void UpdateUserNums(string message)
         {
             if(this.lblNums.InvokeRequired) {
-                this.lblNums.Invoke(new UserInterfaceInvoke(UpdateUserNums),message);
+                this.lblNums.Invoke(new UserInterfaceInvoke(UpdateUserNums), message);
             } else {
                 this.lblNums.Text = message;
             }
@@ -582,7 +590,7 @@ namespace TCPServer
             //在线程里以安全方式调用控件
             if(list_Online.InvokeRequired) {
                 UserInterfaceInvoke userInterfaceInvoke = new UserInterfaceInvoke(UserListOperateAdd);
-                list_Online.Invoke(userInterfaceInvoke,new object[] { message });
+                list_Online.Invoke(userInterfaceInvoke, new object[] { message });
             } else {
                 list_Online.Items.Add(message);
             }
@@ -592,7 +600,7 @@ namespace TCPServer
             //在线程里以安全方式调用控件
             if(list_Online.InvokeRequired) {
                 UserInterfaceInvoke userInterfaceInvoke = new UserInterfaceInvoke(UserListOperateDelete);
-                list_Online.Invoke(userInterfaceInvoke,new object[] { message });
+                list_Online.Invoke(userInterfaceInvoke, new object[] { message });
             } else {
                 list_Online.Items.Remove(message);
             }
@@ -618,9 +626,11 @@ namespace TCPServer
 
         //以下实现发送广播消息
 
-        private void frmServer_Load(object sender,EventArgs e)
+        private void frmServer_Load(object sender, EventArgs e)
         {
-            StreamReader sr = new StreamReader(@".\780587.log",Encoding.Default);
+            m_clock = Factory.Singleton.Resolve<IClock>();
+            m_plugin = new Plugin();
+            StreamReader sr = new StreamReader(@".\780587.log", Encoding.Default);
             String line;
             while((line = sr.ReadLine()) != null) {
                 m_listSBS.Add(line + System.Environment.NewLine);
@@ -629,7 +639,7 @@ namespace TCPServer
             TimerObject timerObject = new TimerObject();
             TimerCallback timerDelegate = new TimerCallback(CheckStatus);
             //创建一个时间延时2s启动，间隔为1s的定时器
-            m_Timer = new System.Threading.Timer(timerDelegate,timerObject,System.Threading.Timeout.Infinite,500);//System.Threading.Timeout.Infinite
+            m_Timer = new System.Threading.Timer(timerDelegate, timerObject, System.Threading.Timeout.Infinite, 500);//System.Threading.Timeout.Infinite
 
             cbxIPProtocol.SelectedIndex = 0;
             unassignedCountry.CodeBlock = new CodeBlock();
@@ -643,12 +653,104 @@ namespace TCPServer
             //Debug.Listeners.Add(m_DebugListener);
 
             //Trace.AutoFlush=true;
-            Debug.AutoFlush=true;
+            Debug.AutoFlush = true;
 
+
+            InitWaypoints();
         }
 
+        private void InitWaypoints()
+        {
+            BaseStationMessage waypoint;
+            List<BaseStationMessage> waypoints = new List<BaseStationMessage>();
+            /*39.948300 	124.245000
+            39.875000 	124.142000
+            39.268300 	122.618000
+            40.046700 	123.178000
+
+            40.833300 	123.750000
+            41.406700 	124.163000
+            41.048300 	124.193000
+            40.258300 	124.285000*/
+            waypoint = CreateWaypoints("001F41", "DF", 39.948300, 124.245000);
+            waypoints.Add(waypoint);
+            waypoint = CreateWaypoints("001F42", "P68", 39.875000, 124.142000);
+            waypoints.Add(waypoint);
+            waypoint = CreateWaypoints("001F43", "CHI", 39.268300, 122.618000);
+            waypoints.Add(waypoint);
+            waypoint = CreateWaypoints("001F44", "NODAL", 40.046700, 123.178000);
+            waypoints.Add(waypoint);
+
+            waypoint = CreateWaypoints("001F45", "ISKEM", 40.833300, 123.750000);
+            waypoints.Add(waypoint);
+            waypoint = CreateWaypoints("001F46", "BIDIB", 41.406700, 124.163000);
+            waypoints.Add(waypoint);
+            waypoint = CreateWaypoints("001F47", "ANSUK", 41.048300, 124.193000);
+            waypoints.Add(waypoint);
+            waypoint = CreateWaypoints("001F48", "DDG", 40.258300, 124.285000);
+            waypoints.Add(waypoint);
+            foreach(BaseStationMessage point in waypoints) {
+                m_plugin.TrackFlight(point);
+            }
+        }
+
+        private BaseStationMessage CreateWaypoints(string icao, string callsign, double latitude, double longitude)
+        {
+            BaseStationMessage waypoint = new BaseStationMessage();
+            waypoint.Altitude = 0;
+            waypoint.Callsign = callsign;
+            waypoint.GroundSpeed = 0;
+            waypoint.Icao24 = icao;
+            waypoint.Latitude = latitude;
+            waypoint.Longitude = longitude;
+            waypoint.MessageGenerated = m_clock.UtcNow;
+            waypoint.MessageLogged = m_clock.UtcNow;
+            waypoint.MessageType = BaseStationMessageType.Transmission;
+            waypoint.OnGround = true;
+            waypoint.Track = 0;
+            waypoint.TransmissionType = BaseStationTransmissionType.SurfacePosition;
+
+            return waypoint;
+        }
+
+        private BaseStationMessage CreateWaypointsPosition(string icao, double latitude, double longitude)
+        {
+            BaseStationMessage waypoint = new BaseStationMessage();
+            waypoint.Altitude = 0;
+            //waypoint.Callsign = "DF";
+            waypoint.GroundSpeed = 0;
+            waypoint.Icao24 = icao;
+            waypoint.Latitude = latitude;
+            waypoint.Longitude = longitude;
+            waypoint.MessageGenerated = m_clock.UtcNow;
+            waypoint.MessageLogged = m_clock.UtcNow;
+            waypoint.MessageType = BaseStationMessageType.Transmission;
+            waypoint.OnGround = true;
+            waypoint.Track = 0;
+            waypoint.TransmissionType = BaseStationTransmissionType.SurfacePosition;
+
+            return waypoint;
+        }
+
+        private BaseStationMessage CreateWaypointsCallsign(string callsign, string icao)
+        {
+            BaseStationMessage waypoint = new BaseStationMessage();
+
+            waypoint.Callsign = callsign;
+
+            waypoint.Icao24 = icao;
+
+            waypoint.MessageType = BaseStationMessageType.Transmission;
+
+            waypoint.TransmissionType = BaseStationTransmissionType.IdentificationAndCategory;
+
+            return waypoint;
+        }
+
+
+
         //窗口关闭时中止线程。
-        private void frmServer_FormClosing(object sender,FormClosingEventArgs e)
+        private void frmServer_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }
@@ -656,7 +758,7 @@ namespace TCPServer
         CodeBlockBitMask unassignedCountry = new CodeBlockBitMask();
 
 
-        private BaseStationMessage CreateBaseStationCallsignMessage(DateTime messageReceivedUtc,GPS gpsSMessage)
+        private BaseStationMessage CreateBaseStationCallsignMessage(DateTime messageReceivedUtc, GPS gpsSMessage)
         {
             BaseStationMessage message = new BaseStationMessage();
             message.MessageLogged = messageReceivedUtc;
@@ -669,7 +771,7 @@ namespace TCPServer
             return message;
         }
 
-        private BaseStationMessage CreateBaseStationSurfacePositionMessage(DateTime messageReceivedUtc,GPS gpsSMessage)
+        private BaseStationMessage CreateBaseStationSurfacePositionMessage(DateTime messageReceivedUtc, GPS gpsSMessage)
         {
             BaseStationMessage message = new BaseStationMessage();
             message.MessageLogged = messageReceivedUtc;
@@ -678,8 +780,8 @@ namespace TCPServer
             message.TransmissionType = BaseStationTransmissionType.SurfacePosition;
             message.Icao24 = (gpsSMessage.CarID & unassignedCountry.SignificantBitMask).ToString("X6");
             //message.Icao24 = txtICAO24.Text;
-            message.Altitude = (int)Math.Round(UnitConverter.ConvertHeight((double)gpsSMessage.Height,HeightUnit.Metres,HeightUnit.Feet),0);
-            message.GroundSpeed = Round.GroundSpeed((float)UnitConverter.ConvertSpeed(gpsSMessage.Speed,SpeedUnit.KilometresPerHour,SpeedUnit.Knots));
+            message.Altitude = (int)Math.Round(UnitConverter.ConvertHeight((double)gpsSMessage.Height, HeightUnit.Metres, HeightUnit.Feet), 0);
+            message.GroundSpeed = Round.GroundSpeed((float)UnitConverter.ConvertSpeed(gpsSMessage.Speed, SpeedUnit.KilometresPerHour, SpeedUnit.Knots));
             message.Track = Round.Track((float)gpsSMessage.OriginalDirection);
             message.Latitude = Round.Coordinate((double)gpsSMessage.OriginalLat);
             message.Longitude = Round.Coordinate((double)gpsSMessage.OriginalLng);
@@ -688,51 +790,51 @@ namespace TCPServer
             return message;
         }
 
-        private void SendClick(object sender,EventArgs e)
+        private void SendClick(object sender, EventArgs e)
         {
             GPS gpsMessage = new GPS();
-            gpsMessage.CarID=uint.Parse(txtOriginalID.Text);
-            gpsMessage.OriginalLat=decimal.Parse(txtWGSLat.Text);
-            gpsMessage.OriginalLng=decimal.Parse(txtWGSLng.Text);
-            gpsMessage.Speed=0;
-            gpsMessage.Height=0;
+            gpsMessage.CarID = uint.Parse(txtOriginalID.Text);
+            gpsMessage.OriginalLat = decimal.Parse(txtWGSLat.Text);
+            gpsMessage.OriginalLng = decimal.Parse(txtWGSLng.Text);
+            gpsMessage.Speed = 0;
+            gpsMessage.Height = 0;
             BaseStationMessage message;
 
-            message = CreateBaseStationCallsignMessage(DateTime.UtcNow,gpsMessage);
+            message = CreateBaseStationCallsignMessage(DateTime.UtcNow, gpsMessage);
             SendBroadMessage(message);
-            message = CreateBaseStationSurfacePositionMessage(DateTime.UtcNow,gpsMessage);
+            message = CreateBaseStationSurfacePositionMessage(DateTime.UtcNow, gpsMessage);
             SendBroadMessage(message);
 
         }
 
-        private void timerSender_Tick(object sender,EventArgs e)
+        private void timerSender_Tick(object sender, EventArgs e)
         {
             this.SendBroadMessage();
         }
 
-        private void btnSpeed_Click(object sender,EventArgs e)
+        private void btnSpeed_Click(object sender, EventArgs e)
         {
 
             SpeedTimer("+");
         }
 
-        private void btnSpeedDown_Click(object sender,EventArgs e)
+        private void btnSpeedDown_Click(object sender, EventArgs e)
         {
             SpeedTimer("-");
         }
 
-        private void btnPause_Click(object sender,EventArgs e)
+        private void btnPause_Click(object sender, EventArgs e)
         {
             PauseTimer();
         }
         private void PauseTimer()
         {
-            m_Timer.Change(System.Threading.Timeout.Infinite,m_Speed);
+            m_Timer.Change(System.Threading.Timeout.Infinite, m_Speed);
         }
 
         private void StartTimer()
         {
-            m_Timer.Change(0,m_Speed);
+            m_Timer.Change(0, m_Speed);
         }
 
         private void SpeedTimer(string command)
@@ -759,15 +861,15 @@ namespace TCPServer
                     m_Speed = 500;
                     break;
             }
-            m_Timer.Change(0,m_Speed);
+            m_Timer.Change(0, m_Speed);
         }
 
-        private void btnSpeedNomal_Click(object sender,EventArgs e)
+        private void btnSpeedNomal_Click(object sender, EventArgs e)
         {
             SpeedTimer("");
         }
 
-        private void btnReset_Click(object sender,EventArgs e)
+        private void btnReset_Click(object sender, EventArgs e)
         {
             RestTimer();
         }
@@ -780,12 +882,12 @@ namespace TCPServer
             StartTimer();
         }
 
-        private void btnStart_Click(object sender,EventArgs e)
+        private void btnStart_Click(object sender, EventArgs e)
         {
             StartTimer();
         }
 
-        private void btnCleanText_Click(object sender,EventArgs e)
+        private void btnCleanText_Click(object sender, EventArgs e)
         {
             SetClear();
         }
@@ -816,33 +918,33 @@ namespace TCPServer
             }
         }
 
-        private void txtShowInfo_TextChanged(object sender,EventArgs e)
+        private void txtShowInfo_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void btnChangeID_Click(object sender,EventArgs e)
+        private void btnChangeID_Click(object sender, EventArgs e)
         {
             txtICAO24.Text = (int.Parse(txtOriginalID.Text) & unassignedCountry.SignificantBitMask).ToString("X6");
         }
 
-        private void lblChange_Click(object sender,EventArgs e)
+        private void lblChange_Click(object sender, EventArgs e)
         {
             txtICAO24.Text = (int.Parse(txtOriginalID.Text) & unassignedCountry.SignificantBitMask).ToString("X6");
         }
 
-        private void lblChangeCoordinate_Click(object sender,EventArgs e)
+        private void lblChangeCoordinate_Click(object sender, EventArgs e)
         {
-            ChinaMapShift.Location wgsLoc=new ChinaMapShift.Location();
-            ChinaMapShift.Location gcjLoc=new ChinaMapShift.Location();
+            ChinaMapShift.Location wgsLoc = new ChinaMapShift.Location();
+            ChinaMapShift.Location gcjLoc = new ChinaMapShift.Location();
             try {
-                wgsLoc.Lat=double.Parse(txtWGSLat.Text);
-                wgsLoc.Lng=double.Parse(txtWGSLng.Text);
+                wgsLoc.Lat = double.Parse(txtWGSLat.Text);
+                wgsLoc.Lng = double.Parse(txtWGSLng.Text);
 
-                gcjLoc= ChinaMapShift.TransformFromWGSToGCJ(wgsLoc);
+                gcjLoc = ChinaMapShift.TransformFromWGSToGCJ(wgsLoc);
 
-                txtGCJLat.Text=gcjLoc.Lat.ToString();
-                txtGCJLng.Text=gcjLoc.Lng.ToString();
+                txtGCJLat.Text = gcjLoc.Lat.ToString();
+                txtGCJLng.Text = gcjLoc.Lng.ToString();
 
             } catch {
                 MessageBox.Show("坐标输入格式有误");
@@ -850,9 +952,9 @@ namespace TCPServer
 
         }
 
-        private void frmServer_Click(object sender,EventArgs e)
+        private void frmServer_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(Convert.ToInt32(textBox1.Text,16).ToString());
+            MessageBox.Show(Convert.ToInt32(textBox1.Text, 16).ToString());
         }
     }
 
