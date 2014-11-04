@@ -78,7 +78,9 @@
     <Compile Include="HeightUnit.cs" />
     <Compile Include="IClock.cs" />
     <Compile Include="ILogProvider.cs" />
-    <Compile Include="IPluginProvider.cs" />
+    <Compile Include="IPluginProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ISingleton.cs" />
     <Compile Include="ITrackFlightLog.cs" />
     <Compile Include="JavascriptHelper.cs" />
