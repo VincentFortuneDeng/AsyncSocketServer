@@ -74,6 +74,7 @@
             this.txtGCJLat = new System.Windows.Forms.TextBox();
             this.txtGCJLng = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnGenerateWaypoints = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -110,7 +111,7 @@
             // 
             this.btnStartService.Location = new System.Drawing.Point(17, 327);
             this.btnStartService.Name = "btnStartService";
-            this.btnStartService.Size = new System.Drawing.Size(301, 48);
+            this.btnStartService.Size = new System.Drawing.Size(193, 48);
             this.btnStartService.TabIndex = 3;
             this.btnStartService.Text = "开始服务";
             this.btnStartService.UseVisualStyleBackColor = true;
@@ -559,11 +560,22 @@
             this.textBox1.Text = "FF";
             this.textBox1.Visible = false;
             // 
+            // btnGenerateWaypoints
+            // 
+            this.btnGenerateWaypoints.Location = new System.Drawing.Point(225, 327);
+            this.btnGenerateWaypoints.Name = "btnGenerateWaypoints";
+            this.btnGenerateWaypoints.Size = new System.Drawing.Size(87, 48);
+            this.btnGenerateWaypoints.TabIndex = 24;
+            this.btnGenerateWaypoints.Text = "生成航路文件";
+            this.btnGenerateWaypoints.UseVisualStyleBackColor = true;
+            this.btnGenerateWaypoints.Click += new System.EventHandler(this.btnGenerateWaypoints_Click);
+            // 
             // frmServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 404);
+            this.Controls.Add(this.btnGenerateWaypoints);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
@@ -652,6 +664,7 @@
         private System.Windows.Forms.TextBox txtGCJLat;
         private System.Windows.Forms.TextBox txtGCJLng;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btnGenerateWaypoints;
     }
 }
 

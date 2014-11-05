@@ -19,12 +19,14 @@ using TCPServer.Library;
 using TCPServer.Interface;
 
 
+
 namespace TCPServer
 {
     public partial class frmServer : Form
     {
         private IClock m_clock;
-        private Plugin m_plugin;
+        private List<WayPoint> m_listWaypoints;
+        private BaseStationSerialiser m_baseStationSerialiser;
         private int m_numConnections;
         private int m_bufferSize;
         private IPEndPoint m_localEndPoint;
@@ -50,7 +52,11 @@ namespace TCPServer
 
         private int m_sendIndex = 0;
 
-        private int m_Speed = 500;
+        private const int DEFAULT_SPEED = 25000;
+
+        private int m_Speed = DEFAULT_SPEED;
+
+        private const int DEFAULT_STEP = 50;
 
         //private bool m_Listening;
 
@@ -475,7 +481,7 @@ namespace TCPServer
         //下面是被定时调用的方法
         private void CheckStatus(Object state)
         {
-            this.SendBroadMessage();
+            SendBroadcastWayPoints();
         }
         public bool Send(string id, byte[] dataBytes)
         {
@@ -524,6 +530,41 @@ namespace TCPServer
             }
         }
 
+        private void SendBroadcastWayPoints()
+        {
+            if(m_listWaypoints.Count > 0) {
+                BaseStationMessage waypointMessage;
+                WayPoint point;
+                for(int i = 0;i < m_listWaypoints.Count;i++) {
+                    if(i < m_listWaypoints.Count - 1) {
+                        point = m_listWaypoints[i];
+                        waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
+                        SendBroadMessage(waypointMessage);
+
+                        waypointMessage = CreateWayPointsPosition(point.Icao24, point.Latitude.GetValueOrDefault(), point.Longitude.GetValueOrDefault());
+                        SendBroadMessage(waypointMessage);
+                    } else {
+                        point = m_listWaypoints[i];
+                        waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
+                        SendBroadMessage(waypointMessage);
+
+                        WayPoint way;
+
+                        for(int j = m_listWaypoints.Count - 1;j >= 0;j--) {
+                            way = m_listWaypoints[j];
+                            waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
+                            SendBroadMessage(waypointMessage);
+                        }
+
+                        for(int j = 0;j < m_listWaypoints.Count - 1;j++) {
+                            way = m_listWaypoints[j];
+                            waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
+                            SendBroadMessage(waypointMessage);
+                        }
+                    }
+                }
+            }
+        }
         private void SendBroadMessage()
         {
             if(m_listSBS.Count > 0 && m_sessionTable.Count > 0) {
@@ -629,7 +670,7 @@ namespace TCPServer
         private void frmServer_Load(object sender, EventArgs e)
         {
             m_clock = Factory.Singleton.Resolve<IClock>();
-            m_plugin = new Plugin();
+            m_baseStationSerialiser = new BaseStationSerialiser();
             StreamReader sr = new StreamReader(@".\780587.log", Encoding.Default);
             String line;
             while((line = sr.ReadLine()) != null) {
@@ -655,14 +696,21 @@ namespace TCPServer
             //Trace.AutoFlush=true;
             Debug.AutoFlush = true;
 
-
-            InitWaypoints();
+            LoadWaypoints();
         }
+        private void LoadWaypoints()
+        {
+            m_listWaypoints = m_baseStationSerialiser.DeSerialiseBaseStation();
+
+            //MessageBox.Show(m_listWaypoints.Count.ToString());
+
+        }
+
 
         private void InitWaypoints()
         {
-            BaseStationMessage waypoint;
-            List<BaseStationMessage> waypoints = new List<BaseStationMessage>();
+            WayPoint waypoint;
+            List<WayPoint> waypoints = new List<WayPoint>();
             /*39.948300 	124.245000
             39.875000 	124.142000
             39.268300 	122.618000
@@ -672,39 +720,39 @@ namespace TCPServer
             41.406700 	124.163000
             41.048300 	124.193000
             40.258300 	124.285000*/
-            waypoint = CreateWaypoints("001F41", "DF", 39.948300, 124.245000);
+            waypoint = CreateWayPoints("001F41", "DF", 39.948300, 124.245000);
             waypoints.Add(waypoint);
-            waypoint = CreateWaypoints("001F42", "P68", 39.875000, 124.142000);
+            waypoint = CreateWayPoints("001F42", "P68", 39.875000, 124.142000);
             waypoints.Add(waypoint);
-            waypoint = CreateWaypoints("001F43", "CHI", 39.268300, 122.618000);
+            waypoint = CreateWayPoints("001F43", "CHI", 39.268300, 122.618000);
             waypoints.Add(waypoint);
-            waypoint = CreateWaypoints("001F44", "NODAL", 40.046700, 123.178000);
+            waypoint = CreateWayPoints("001F44", "NODAL", 40.046700, 123.178000);
             waypoints.Add(waypoint);
 
-            waypoint = CreateWaypoints("001F45", "ISKEM", 40.833300, 123.750000);
+            waypoint = CreateWayPoints("001F45", "ISKEM", 40.833300, 123.750000);
             waypoints.Add(waypoint);
-            waypoint = CreateWaypoints("001F46", "BIDIB", 41.406700, 124.163000);
+            waypoint = CreateWayPoints("001F46", "BIDIB", 41.406700, 124.163000);
             waypoints.Add(waypoint);
-            waypoint = CreateWaypoints("001F47", "ANSUK", 41.048300, 124.193000);
+            waypoint = CreateWayPoints("001F47", "ANSUK", 41.048300, 124.193000);
             waypoints.Add(waypoint);
-            waypoint = CreateWaypoints("001F48", "DDG", 40.258300, 124.285000);
+            waypoint = CreateWayPoints("001F48", "DDG", 40.258300, 124.285000);
             waypoints.Add(waypoint);
-            foreach(BaseStationMessage point in waypoints) {
-                m_plugin.TrackFlight(point);
+            foreach(WayPoint point in waypoints) {
+                m_baseStationSerialiser.SerialiseBaseStation(point);
             }
         }
 
-        private BaseStationMessage CreateWaypoints(string icao, string callsign, double latitude, double longitude)
+        private WayPoint CreateWayPoints(string icao, string callsign, double latitude, double longitude)
         {
-            BaseStationMessage waypoint = new BaseStationMessage();
+            WayPoint waypoint = new WayPoint();
             waypoint.Altitude = 0;
             waypoint.Callsign = callsign;
             waypoint.GroundSpeed = 0;
             waypoint.Icao24 = icao;
             waypoint.Latitude = latitude;
             waypoint.Longitude = longitude;
-            waypoint.MessageGenerated = m_clock.UtcNow;
-            waypoint.MessageLogged = m_clock.UtcNow;
+            //waypoint.MessageGenerated = m_clock.UtcNow;
+            //waypoint.MessageLogged = m_clock.UtcNow;
             waypoint.MessageType = BaseStationMessageType.Transmission;
             waypoint.OnGround = true;
             waypoint.Track = 0;
@@ -713,7 +761,7 @@ namespace TCPServer
             return waypoint;
         }
 
-        private BaseStationMessage CreateWaypointsPosition(string icao, double latitude, double longitude)
+        private BaseStationMessage CreateWayPointsPosition(string icao, double latitude, double longitude)
         {
             BaseStationMessage waypoint = new BaseStationMessage();
             waypoint.Altitude = 0;
@@ -732,7 +780,7 @@ namespace TCPServer
             return waypoint;
         }
 
-        private BaseStationMessage CreateWaypointsCallsign(string callsign, string icao)
+        private BaseStationMessage CreateWayPointsCallsign(string icao, string callsign)
         {
             BaseStationMessage waypoint = new BaseStationMessage();
 
@@ -841,24 +889,20 @@ namespace TCPServer
         {
             switch(command) {
                 case "-":
-                    if(m_Speed <= 500) {
-                        m_Speed += 50;
-                    } else {
-                        m_Speed += 500;
-                    }
+
+                    m_Speed += DEFAULT_STEP;
+
                     break;
                 case "+":
-                    if(m_Speed <= 500) {
-                        m_Speed -= 50;
-                    } else {
-                        m_Speed -= 500;
-                    }
 
-                    if(m_Speed <= 0) m_Speed = 500;
+                    m_Speed -= DEFAULT_STEP;
+
+
+                    if(m_Speed <= 0) m_Speed = DEFAULT_SPEED;
                     break;
 
                 default:
-                    m_Speed = 500;
+                    m_Speed = DEFAULT_SPEED;
                     break;
             }
             m_Timer.Change(0, m_Speed);
@@ -878,7 +922,7 @@ namespace TCPServer
         {
             PauseTimer();
             m_sendIndex = 0;
-            m_Speed = 500;
+            m_Speed = DEFAULT_SPEED;
             StartTimer();
         }
 
@@ -954,8 +998,16 @@ namespace TCPServer
 
         private void frmServer_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(Convert.ToInt32(textBox1.Text, 16).ToString());
+            //MessageBox.Show(Convert.ToInt32(textBox1.Text, 16).ToString());
+            LoadWaypoints();
         }
+
+        private void btnGenerateWaypoints_Click(object sender, EventArgs e)
+        {
+            InitWaypoints();
+        }
+
+
     }
 
 

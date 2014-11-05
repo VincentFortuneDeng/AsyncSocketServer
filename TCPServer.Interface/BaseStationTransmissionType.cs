@@ -10,58 +10,70 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace TCPServer.Interface
 {
     /// <summary>
     /// An enumeration of the different type of Transmission message types.
     /// </summary>
+    [DataContract]
     public enum BaseStationTransmissionType
     {
         /// <summary>
         /// The message is not a Transmission message.
         /// </summary>
+        [EnumMember]
         None,
 
         /// <summary>
         /// A type 1 message.
         /// </summary>
+        [EnumMember]
         IdentificationAndCategory,
 
         /// <summary>
         /// A type 2 message.
         /// </summary>
+        [EnumMember]
         SurfacePosition,
 
         /// <summary>
         /// A type 3 message.
         /// </summary>
+        [EnumMember]
         AirbornePosition,
 
         /// <summary>
         /// A type 4 message.
         /// </summary>
+        [EnumMember]
         AirborneVelocity,
 
         /// <summary>
         /// A type 5 message.
         /// </summary>
+        [EnumMember]
         SurveillanceAlt,
 
         /// <summary>
         /// A type 6 message.
         /// </summary>
+        [EnumMember]
         SurveillanceId,
 
         /// <summary>
         /// A type 7 message.
         /// </summary>
+        [EnumMember]
         AirToAir,
 
         /// <summary>
         /// A type 8 message.
         /// </summary>
+        [EnumMember]
         AllCallReply,
     }
 }

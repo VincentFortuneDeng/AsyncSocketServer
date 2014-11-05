@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using TCPServer.Interface;
@@ -33,21 +34,21 @@ namespace TCPServer.Library
     /// <summary>
     /// Implements <see cref="IPlugin"/> to tell VRS about our plugin.
     /// </summary>
-    public class Plugin //: IPlugin
+    public class BaseStationSerialiser //: IPlugin
     {
         //private static log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #region Private class - DefaultProvider
         /// <summary>
-        /// The default implementation of <see cref="IPluginProvider"/>.
+        /// The default implementation of <see cref="IBaseStationSerialiserProvider"/>.
         /// </summary>
-        class DefaultProvider : IPluginProvider
+        class DefaultProvider : IBaseStationSerialiserProvider
         {
             public DateTime UtcNow { get { return DateTime.UtcNow; } }
             public DateTime LocalNow { get { return DateTime.Now; } }
             //public IOptionsView CreateOptionsView()     { return new WinForms.OptionsView(); }
             public bool FileExists(string fileName) { return File.Exists(fileName); }
             public long FileSize(string fileName) { return new FileInfo(fileName).Length; }
-            public ITrackFlightLog CreateTrackFlightLog() { return new TrackFlightLog(); }
+            public IBaseStationLog CreateBaseStationLog() { return new BaseStationLog(); }
 
             private Dictionary<Type, JsonSerialiser> _JsonSerialiserMap = new Dictionary<Type, JsonSerialiser>();
 
@@ -93,25 +94,47 @@ namespace TCPServer.Library
 
             //    return result;
             //}
+            public object JsonDeSerialise(Type type, string json)
+            {
+                using(MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(json))) {
+                    //MemoryStream stream = new MemoryStream();
+
+                    DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(type);
+
+                    return jsonSerializer.ReadObject(stream);
+                }
+            }
 
             public string JsonSerialise(object json)
             {
-                var type = json.GetType();
-                JsonSerialiser serialiser;
-                if(!_JsonSerialiserMap.TryGetValue(type, out serialiser)) {
-                    serialiser = new JsonSerialiser();
-                    serialiser.Initialise(type);
-                    _JsonSerialiserMap.Add(type, serialiser);
-                }
+                if(Type.GetType("Mono.Runtime") != null) {
+                    var type = json.GetType();
+                    JsonSerialiser serialiser;
+                    if(!_JsonSerialiserMap.TryGetValue(type, out serialiser)) {
+                        serialiser = new JsonSerialiser();
+                        serialiser.Initialise(type);
+                        _JsonSerialiserMap.Add(type, serialiser);
+                    }
 
-                string text;
-                using(MemoryStream stream = new MemoryStream()) {
-                    serialiser.WriteObject(stream, json);
-                    text = Encoding.UTF8.GetString(stream.ToArray());
-                    return text;
+                    string text;
+                    using(MemoryStream stream = new MemoryStream()) {
+                        serialiser.WriteObject(stream, json);
+                        text = Encoding.UTF8.GetString(stream.ToArray());
+                        return text;
+                    }
+                } else {
+                    string text;
+                    DataContractJsonSerializer serialiser = new DataContractJsonSerializer(json.GetType());
+                    using(MemoryStream stream = new MemoryStream()) {
+                        serialiser.WriteObject(stream, json);
+                        text = Encoding.UTF8.GetString(stream.ToArray());
+                        return text;
+
+                    }
                 }
             }
         }
+
         #endregion
 
         #region Private class - FlightRecords
@@ -153,7 +176,7 @@ namespace TCPServer.Library
         /// <summary>
         /// 记录飞机轨迹日志对象
         /// </summary>
-        private ITrackFlightLog _TrackFlightLog;
+        private IBaseStationLog m_baseStationLog;
 
         /// <summary>
         /// The object that looks up values in the standing data for us.
@@ -185,7 +208,7 @@ namespace TCPServer.Library
         ///// <summary>
         ///// Gets or sets the provider that abstracts away the environment for testing.
         ///// </summary>
-        public IPluginProvider Provider { get; set; }
+        public IBaseStationSerialiserProvider Provider { get; set; }
 
         ///// <summary>
         ///// See interface docs.
@@ -243,10 +266,10 @@ namespace TCPServer.Library
         /// <summary>
         /// Creates a new object.
         /// </summary>
-        public Plugin()
+        public BaseStationSerialiser()
         {
             Provider = new DefaultProvider();
-            _TrackFlightLog = Provider.CreateTrackFlightLog();
+            m_baseStationLog = Provider.CreateBaseStationLog();
             //Status = PluginStrings.Disabled;
         }
         #endregion
@@ -493,80 +516,28 @@ namespace TCPServer.Library
         //    return _Database.GetDatabaseHistory().Where(h => h.IsCreationOfDatabaseByVirtualRadarServer).Any();
         //}
 
+        public List<WayPoint> DeSerialiseBaseStation()
+        {
+            List<WayPoint> listWayPointJson = new List<WayPoint>();
+            WayPoint baseWayPointJson;
+            using(StreamReader streamReader = new StreamReader(m_baseStationLog.FileName)) {
+                while(!streamReader.EndOfStream) {
+                    string json = streamReader.ReadLine(); //读取每行数据
+                    baseWayPointJson = (WayPoint)Provider.JsonDeSerialise(typeof(WayPoint), json);
+                    listWayPointJson.Add(baseWayPointJson);
+                    //Console.WriteLine(json); //屏幕打印每行数据
+                }
+            }
+
+            return listWayPointJson;
+        }
         /// <summary>
         /// Creates database records and updates internal objects to track an aircraft that is currently transmitting messages.
         /// </summary>
         /// <param name="message"></param>
-        public void TrackFlight(BaseStationMessage message)
+        public void SerialiseBaseStation(WayPoint message)
         {
-            //if(IsTransmissionMessage(message)) {
-            //    lock(_SyncLock) {
-            //        if(_Session != null) {
-            //            var localNow = Provider.LocalNow;
-
-            //            FlightRecords flightRecords;
-            //            if(!_FlightMap.TryGetValue(message.Icao24, out flightRecords)) {//新Flight
-            //                flightRecords = new FlightRecords();
-            //                _Database.StartTransaction();
-            //                try {
-            //                    flightRecords.Aircraft = FetchOrCreateAircraft(localNow, message.Icao24);
-            //                    flightRecords.Flight = CreateFlight(localNow, flightRecords.Aircraft.AircraftID, message.Callsign);
-            //                    flightRecords.EndTimeUtc = Provider.UtcNow;
-            //                    _Database.EndTransaction();
-            //                } catch(ThreadAbortException) {
-            //                } catch(Exception ex) {
-            //                    Debug.WriteLine(String.Format("BaseStationDatabaseWriter.Plugin.TrackFlight caught exception {0}", ex.ToString()));
-            //                    _Database.RollbackTransaction();
-            //                    throw;
-            //                }
-            //                _FlightMap.Add(message.Icao24, flightRecords);
-            //            } else {//已记录Flight
-            //                if(flightRecords.Flight.Callsign.Length == 0 && !String.IsNullOrEmpty(message.Callsign)) {
-            //                    var databaseVersion = _Database.GetFlightById(flightRecords.Flight.FlightID);
-            //                    flightRecords.Flight.Callsign = databaseVersion.Callsign = message.Callsign;
-            //                    _Database.UpdateFlight(databaseVersion);
-            //                }
-            //            }
-
-            //            var flight = flightRecords.Flight;
-            //            flightRecords.EndTimeUtc = Provider.UtcNow;
-            //            flight.EndTime = localNow;
-            /*
-            log.Info("AircraftID:" + flight.AircraftID + " Callsign:" + flight.Callsign + " FlightID:" + flight.FlightID
-                + " FirstAltitude:" + flight.FirstAltitude + " FirstGroundSpeed:" + flight.FirstGroundSpeed
-                + " FirstLat:" + flight.FirstLat + " FirstLon:" + flight.FirstLon
-                + " FirstTrack:" + flight.FirstTrack + " FirstVerticalRate:" + flight.FirstVerticalRate
-                + " LastAltitude:" + flight.LastAltitude + " LastGroundSpeed:" + flight.LastGroundSpeed
-                + " LastLat:" + flight.LastLat + " LastLon:" + flight.LastLon
-                + " LastTrack:" + flight.LastTrack + " LastVerticalRate:" + flight.LastVerticalRate
-                + " StartTime:" + flight.StartTime + " EndTime:" + flight.EndTime
-                + " NumADSBMsgRec:" + flight.NumADSBMsgRec + " NumPosMsgRec:" + flight.NumPosMsgRec
-                + " NumModeSMsgRec:" + flight.NumModeSMsgRec + " NumAirPosMsgRec:" + flight.NumAirPosMsgRec
-                + " NumAirCallRepMsgRec:" + flight.NumAirCallRepMsgRec);*/
-            //log.Info(String.Concat(message.ToBaseStationString(), "\r\n"));
-            //log.Logger.
-
-            //if(message.SquawkHasChanged.GetValueOrDefault()) flight.HadAlert = true;
-            //if(message.IdentActive.GetValueOrDefault()) flight.HadSpi = true;
-            /*
-             * 7500：非法行为（比如劫机）
-             * 7600：通讯故障
-             * 7700：紧急状况 
-             */
-            //if (message.Squawk == 7500 || message.Squawk == 7600 || message.Squawk == 7700) flight.HadEmergency = true;
-            //UpdateFirstLastValues(message, flight, flightRecords);
-            //UpdateMessageCounters(message, flight);
-
-            //记录轨迹日志
-            //if(!(flight.LastLat == null && flight.LastLon == null && flight.LastAltitude==null && flight.LastTrack==null && flight.LastGroundSpeed==null)) {
-            //    _TrackFlightLog.StartTime = flight.StartTime;
-            //    _TrackFlightLog.ICAO24 = flightRecords.Aircraft.ModeS;
-            //    ReportFlightTrailJson reportFlightTrailJson = Provider.ConvertToReportFlightTrailJson(flight);
-            _TrackFlightLog.WriteLine(String.Concat(Provider.JsonSerialise(message), "\r\n"));
-            //            }
-            //        }
-            //    }
-            //}
+            m_baseStationLog.WriteLine(String.Concat(Provider.JsonSerialise(message), "\r\n"));
         }
 
         /// <summary>

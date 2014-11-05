@@ -135,7 +135,7 @@ namespace TCPServer.Interface
             //取得周边机场编辑区域
             GaussClass.stGauss adsb54 = GaussClass.PositiveChange(double.Parse(this._Lat.ToString()),double.Parse(this._Lng.ToString()),meridian,0,0);
             System.Drawing.Point gpsPoint = new System.Drawing.Point((int)adsb54.Unknow_y,(int)adsb54.Unknow_x);
-            double convertLng,convertLat;
+            //double convertLng,convertLat;
             //if (JudgeInRect(SystemParam.Configure.SignalConfigure.AirporBorder[0].X, SystemParam.Configure.SignalConfigure.AirporBorder[0].Y,
             //    SystemParam.Configure.SignalConfigure.AirporBorder[1].X, SystemParam.Configure.SignalConfigure.AirporBorder[1].Y, gpsPoint.X, gpsPoint.Y))
             //{

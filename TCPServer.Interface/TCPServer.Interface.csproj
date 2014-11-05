@@ -53,9 +53,9 @@
     <Compile Include="HeightUnit.cs" />
     <Compile Include="IClock.cs" />
     <Compile Include="ILogProvider.cs" />
-    <Compile Include="IPluginProvider.cs" />
+    <Compile Include="IBaseStationSerialiserProvider.cs" />
     <Compile Include="ISingleton.cs" />
-    <Compile Include="ITrackFlightLog.cs" />
+    <Compile Include="IBaseStationLog.cs" />
     <Compile Include="JavascriptHelper.cs" />
     <Compile Include="JsonSerialiser.cs" />
     <Compile Include="MsgBase.cs" />
@@ -65,6 +65,7 @@
     <Compile Include="SpeedType.cs" />
     <Compile Include="SpeedUnit.cs" />
     <Compile Include="UnitConverter.cs" />
+    <Compile Include="WayPoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

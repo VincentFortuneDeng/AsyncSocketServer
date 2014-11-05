@@ -10,57 +10,58 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-//using VirtualRadar.Interface;
+
 
 namespace TCPServer.Interface
 {
     /// <summary>
-    /// The interface for objects that can manage log files for us.
+    /// The interface for objects that abstract away the environment to allow testing of the plugin.
     /// </summary>
-    /// <remarks>
-    /// You should only use the Singleton version of this object to write to the program log. Using your own
-    /// instance will work but it will not be thread-safe whereas the Singleton log is guaranteed to be thread-safe.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// ILog log = Factory.Singleton.Resolve&lt;ILog&gt;().Singleton;
-    /// log.WriteLine("This will be written to the program log");
-    /// </code>
-    /// </example>
-    public interface ITrackFlightLog : ISingleton<ITrackFlightLog>
+    public interface IBaseStationSerialiserProvider
     {
         /// <summary>
-        /// Gets or sets the provider that abstracts away the environment for the tests.
+        /// Gets the current date and time at UTC.
         /// </summary>
-        ILogProvider Provider { get; set; }
-
-        string FileName { get; }
+        DateTime UtcNow { get; }
 
         /// <summary>
-        /// Gets the full path and filename of the log file.
+        /// Gets the current date and time in the local time zone.
         /// </summary>
-        string ICAO24 { get; set; }
+        DateTime LocalNow { get; }
 
-        DateTime StartTime { set; get;}
-        /// <summary>
-        /// Writes a line of text to the log file.
-        /// </summary>
-        /// <param name="message"></param>
-        void WriteLine(string message);
+        string JsonSerialise(object json);
 
-        /// <summary>
-        /// Writes a line of text to the log file.
-        /// </summary>
-        /// <param name="format"></param>
-        /// <param name="args"></param>
-        void WriteLine(string format, params object[] args);
+        object JsonDeSerialise(Type type, string json);
+
+        //ReportFlightTrailJson ConvertToReportFlightTrailJson(BaseStationFlight flight);
 
         /// <summary>
-        /// Truncates the log file to the last nn kilobytes.
+        /// Creates a GUI object that allows the user to display and change the options for the plugin.
         /// </summary>
-        /// <param name="kbLength">The number of kilobytes to preserve at the end of the file.</param>
-        void Truncate(DateTime date,string ICAO24,int kbLength);
+        /// <returns></returns>
+        //IOptionsView CreateOptionsView();
+
+        /// <summary>
+        /// 创建轨迹记录器
+        /// </summary>
+        /// <returns></returns>
+        IBaseStationLog CreateBaseStationLog();
+
+        /// <summary>
+        /// Returns true if the file exists.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        bool FileExists(string fileName);
+
+        /// <summary>
+        /// Returns the length of the file.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        long FileSize(string fileName);
     }
 }

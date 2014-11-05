@@ -11,47 +11,56 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace TCPServer.Interface
 {
     /// <summary>
     /// An enumeration of the different types of BaseStation message.
     /// </summary>
+    [DataContract]
     public enum BaseStationMessageType
     {
         /// <summary>
         /// The message could not be translated.
         /// </summary>
+        [EnumMember]
         Unknown,
 
         /// <summary>
         /// A MSG message.
         /// </summary>
+        [EnumMember]
         Transmission,
 
         /// <summary>
         /// A STA message.
         /// </summary>
+        [EnumMember]
         StatusChange,
 
         /// <summary>
         /// An AIR message.
         /// </summary>
+        [EnumMember]
         NewAircraft,
 
         /// <summary>
         /// An ID message.
         /// </summary>
+        [EnumMember]
         NewIdentifier,
 
         /// <summary>
         /// A SEL message.
         /// </summary>
+        [EnumMember]
         UserClicked,
 
         /// <summary>
         /// A CLK message.
         /// </summary>
+        [EnumMember]
         UserDoubleClicked,
     }
 }

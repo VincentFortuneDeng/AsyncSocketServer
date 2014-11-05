@@ -21,13 +21,14 @@ using System.Threading;
 using InterfaceFactory;
 using TCPServer.Interface;
 using System.Windows.Forms;
+using System.Runtime.Serialization.Json;
 
 namespace TCPServer.Library
 {
     /// <summary>
-    /// Default implementation of <see cref="ITrackFlightLog"/>.
+    /// Default implementation of <see cref="IBaseStationLog"/>.
     /// </summary>
-    class TrackFlightLog : ITrackFlightLog
+    class BaseStationLog : IBaseStationLog
     {
         /// <summary>
         /// Default implementation of <see cref="ILogProvider"/>.
@@ -88,11 +89,11 @@ namespace TCPServer.Library
         /// </summary>
         public ILogProvider Provider { get; set; }
 
-        private static readonly ITrackFlightLog _Singleton = new TrackFlightLog();
+        private static readonly IBaseStationLog _Singleton = new BaseStationLog();
         /// <summary>
         /// See interface docs.
         /// </summary>
-        public ITrackFlightLog Singleton { get { return _Singleton; } }
+        public IBaseStationLog Singleton { get { return _Singleton; } }
 
         private string _ICAO24;
         /// <summary>
@@ -117,7 +118,7 @@ namespace TCPServer.Library
         /// <summary>
         /// Creates a new object.
         /// </summary>
-        public TrackFlightLog()
+        public BaseStationLog()
         {
             Provider = new DefaultProvider();
             _Clock = Factory.Singleton.Resolve<IClock>();
@@ -130,7 +131,7 @@ namespace TCPServer.Library
         {
             if(_Folder == null) {
                 _Folder = Application.StartupPath;
-                FileName = Path.Combine(_Folder, "WayPoints.config");
+                FileName = Path.Combine(_Folder, "WayPoints.config"/*"7277A9170507.log"*/);
             }
         }
 
@@ -172,6 +173,8 @@ namespace TCPServer.Library
                 }
             }
         }
+
+        
 
         /// <summary>
         /// See interface docs.
