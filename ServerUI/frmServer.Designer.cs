@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmServer));
             this.label1 = new System.Windows.Forms.Label();
             this.txtShowInfo = new System.Windows.Forms.RichTextBox();
             this.btnStartService = new System.Windows.Forms.Button();
@@ -75,6 +76,10 @@
             this.txtGCJLng = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.btnGenerateWaypoints = new System.Windows.Forms.Button();
+            this.btnListTrail = new System.Windows.Forms.Button();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.rdTrail = new System.Windows.Forms.RadioButton();
+            this.rdWaypoints = new System.Windows.Forms.RadioButton();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -84,6 +89,7 @@
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -570,11 +576,56 @@
             this.btnGenerateWaypoints.UseVisualStyleBackColor = true;
             this.btnGenerateWaypoints.Click += new System.EventHandler(this.btnGenerateWaypoints_Click);
             // 
+            // btnListTrail
+            // 
+            this.btnListTrail.Location = new System.Drawing.Point(926, 2);
+            this.btnListTrail.Name = "btnListTrail";
+            this.btnListTrail.Size = new System.Drawing.Size(75, 23);
+            this.btnListTrail.TabIndex = 25;
+            this.btnListTrail.Text = "轨迹列表";
+            this.btnListTrail.UseVisualStyleBackColor = true;
+            this.btnListTrail.Click += new System.EventHandler(this.btnListTrail_Click);
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.rdTrail);
+            this.groupBox6.Controls.Add(this.rdWaypoints);
+            this.groupBox6.Location = new System.Drawing.Point(795, -5);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(123, 31);
+            this.groupBox6.TabIndex = 26;
+            this.groupBox6.TabStop = false;
+            // 
+            // rdTrail
+            // 
+            this.rdTrail.AutoSize = true;
+            this.rdTrail.Checked = true;
+            this.rdTrail.Location = new System.Drawing.Point(76, 9);
+            this.rdTrail.Name = "rdTrail";
+            this.rdTrail.Size = new System.Drawing.Size(49, 17);
+            this.rdTrail.TabIndex = 0;
+            this.rdTrail.TabStop = true;
+            this.rdTrail.Text = "轨迹";
+            this.rdTrail.UseVisualStyleBackColor = true;
+            this.rdTrail.CheckedChanged += new System.EventHandler(this.rdTrail_CheckedChanged);
+            // 
+            // rdWaypoints
+            // 
+            this.rdWaypoints.AutoSize = true;
+            this.rdWaypoints.Location = new System.Drawing.Point(4, 9);
+            this.rdWaypoints.Name = "rdWaypoints";
+            this.rdWaypoints.Size = new System.Drawing.Size(61, 17);
+            this.rdWaypoints.TabIndex = 0;
+            this.rdWaypoints.Text = "航路点";
+            this.rdWaypoints.UseVisualStyleBackColor = true;
+            // 
             // frmServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 404);
+            this.Controls.Add(this.groupBox6);
+            this.Controls.Add(this.btnListTrail);
             this.Controls.Add(this.btnGenerateWaypoints);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.groupBox5);
@@ -592,6 +643,7 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnStartService);
             this.Controls.Add(this.txtShowInfo);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "frmServer";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -612,6 +664,8 @@
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -665,6 +719,10 @@
         private System.Windows.Forms.TextBox txtGCJLng;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button btnGenerateWaypoints;
+        private System.Windows.Forms.Button btnListTrail;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.RadioButton rdTrail;
+        private System.Windows.Forms.RadioButton rdWaypoints;
     }
 }
 

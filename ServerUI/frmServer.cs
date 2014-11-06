@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
+//using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
@@ -52,9 +52,11 @@ namespace TCPServer
 
         private int m_sendIndex = 0;
 
-        private const int DEFAULT_SPEED = 30000;
+        private const int DEFAULT_SPEED_WAYPOINT = 30000;
 
-        private int m_Speed = DEFAULT_SPEED;
+        private const int DEFAULT_SPEED_TRAIL = 500;
+
+        private int m_Speed = DEFAULT_SPEED_TRAIL;
 
         private const int DEFAULT_STEP = 50;
 
@@ -64,11 +66,19 @@ namespace TCPServer
 
         //TimerObject m_timerObject ;
 
-        System.Threading.Timer m_Timer;
+        private System.Threading.Timer m_Timer;
+        private string m_TrailPath = "Trail";
+        private string m_TrailFileName = "";
 
         TextWriterTraceListener m_TraceListener = new TextWriterTraceListener(System.IO.File.CreateText("BroadcastBaseStationServer.log"));
         //TextWriterTraceListener m_DebugListener = new TextWriterTraceListener(System.IO.File.CreateText("BroadcastBaseStationMessage.log"));
 
+
+        public string TrailName
+        {
+            set;
+            get;
+        }
 
         //用来设置服务端监听的端口号
         //private int ServerPort
@@ -142,7 +152,7 @@ namespace TCPServer
                 m_isListing = true;
                 btnStartService.Text = "停止服务";
 
-                RestTimer();
+                ResetTimer();
             } catch(Exception e) {
                 ShowClientMessage("启动失败:" + e.Message);
                 LogBroadcastServerStatus("启动失败:" + e.Message);
@@ -374,8 +384,9 @@ namespace TCPServer
 
                 LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}", count.ToString()));
                 LogBroadcastServerStatus(string.Format("{0}上线", ip));
-
-                if(m_sessionTable.Count == 0) StartTimer();
+                if(m_isListing) {
+                    if(m_sessionTable.Count == 0) StartTimer();
+                }
 
             }
         }
@@ -483,7 +494,11 @@ namespace TCPServer
         //下面是被定时调用的方法
         private void CheckStatus(Object state)
         {
-            SendBroadcastWayPoints();
+            if(rdTrail.Checked) {
+                SendBroadMessage();
+            } else {
+                SendBroadcastWayPoints();
+            }
         }
         public bool Send(string id, byte[] dataBytes)
         {
@@ -508,15 +523,86 @@ namespace TCPServer
 
         private void SendBroadMessage(BaseStationMessage message)
         {
-            if(m_sessionTable.Count > 0) {
-                string strDataLine = String.Concat(message.ToBaseStationString(), "\r\n");
+            if(m_isListing) {
+                if(m_sessionTable.Count > 0) {
+                    string strDataLine = String.Concat(message.ToBaseStationString(), "\r\n");
 
-                byte[] bytes = Encoding.ASCII.GetBytes(strDataLine);
-                if(bytes != null && bytes.Length > 0) {
+                    byte[] bytes = Encoding.ASCII.GetBytes(strDataLine);
+                    if(bytes != null && bytes.Length > 0) {
+                        lock(((ICollection)m_sessionTable).SyncRoot) {
+                            foreach(AsyncUserToken socketClient in m_sessionTable.Values) {
+                                try {
+                                    Send(socketClient.ConnectionId, bytes);
+                                } catch(Exception ee) {
+                                    ShowClientMessage("发送数据出现异常：" + ee.Message);
+                                    LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
+                                    return;
+                                }
+                            }
+                        }
+                        ShowClientMessage(strDataLine);
+                        Debug.WriteLine(strDataLine);
+
+                    }
+                }
+            }
+        }
+
+        private void SendBroadcastWayPoints()
+        {
+            if(m_isListing) {
+                if(m_sessionTable.Count > 0 && m_listWaypoints.Count > 0) {
+                    BaseStationMessage waypointMessage;
+                    WayPoint point;
+                    for(int i = 0;i < m_listWaypoints.Count;i++) {
+                        if(i < m_listWaypoints.Count - 1) {
+                            //发送前几个点呼号及坐标
+                            point = m_listWaypoints[i];
+                            waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
+                            SendBroadMessage(waypointMessage);
+
+                            waypointMessage = CreateWayPointsPosition(point.Icao24, point.Latitude.GetValueOrDefault(), point.Longitude.GetValueOrDefault());
+                            SendBroadMessage(waypointMessage);
+                        } else {
+                            //发送最后一点呼号
+                            point = m_listWaypoints[i];
+                            waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
+                            SendBroadMessage(waypointMessage);
+
+                            WayPoint way;
+
+                            //从后向前发送路线上的点
+                            for(int j = m_listWaypoints.Count - 1;j >= 0;j--) {
+                                way = m_listWaypoints[j];
+                                waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
+                                SendBroadMessage(waypointMessage);
+                            }
+                            //从前向后发送路线上的点
+                            for(int j = 0;j < m_listWaypoints.Count;j++) {
+                                way = m_listWaypoints[j];
+                                waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
+                                SendBroadMessage(waypointMessage);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private void SendBroadMessage()
+        {
+            if(m_isListing) {
+                if(m_listSBS.Count > 0 && m_sessionTable.Count > 0) {
+                    string strDataLine = m_listSBS[m_sendIndex++];
+
+                    if(m_sendIndex >= m_listSBS.Count) m_sendIndex = 0;
+
+                    Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
+
+
                     lock(((ICollection)m_sessionTable).SyncRoot) {
                         foreach(AsyncUserToken socketClient in m_sessionTable.Values) {
                             try {
-                                Send(socketClient.ConnectionId, bytes);
+                                Send(socketClient.ConnectionId, sendData);
                             } catch(Exception ee) {
                                 ShowClientMessage("发送数据出现异常：" + ee.Message);
                                 LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
@@ -526,77 +612,16 @@ namespace TCPServer
                     }
                     ShowClientMessage(strDataLine);
                     Debug.WriteLine(strDataLine);
-
-                }
-            }
-        }
-
-        private void SendBroadcastWayPoints()
-        {
-            if(m_sessionTable.Count > 0 && m_listWaypoints.Count > 0) {
-                BaseStationMessage waypointMessage;
-                WayPoint point;
-                for(int i = 0;i < m_listWaypoints.Count;i++) {
-                    if(i < m_listWaypoints.Count - 1) {
-                        //发送前几个点呼号及坐标
-                        point = m_listWaypoints[i];
-                        waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
-                        SendBroadMessage(waypointMessage);
-
-                        waypointMessage = CreateWayPointsPosition(point.Icao24, point.Latitude.GetValueOrDefault(), point.Longitude.GetValueOrDefault());
-                        SendBroadMessage(waypointMessage);
+                } else {
+                    if(m_listSBS.Count <= 0) {
+                        ShowClientMessage("没有数据内容");
                     } else {
-                        //发送最后一点呼号
-                        point = m_listWaypoints[i];
-                        waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
-                        SendBroadMessage(waypointMessage);
-
-                        WayPoint way;
-
-                        //从后向前发送路线上的点
-                        for(int j = m_listWaypoints.Count - 1;j >= 0;j--) {
-                            way = m_listWaypoints[j];
-                            waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
-                            SendBroadMessage(waypointMessage);
-                        }
-                        //从前向后发送路线上的点
-                        for(int j = 0;j < m_listWaypoints.Count;j++) {
-                            way = m_listWaypoints[j];
-                            waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
-                            SendBroadMessage(waypointMessage);
+                        if(m_isListing) {
+                            if(m_sessionTable.Count <= 0) {
+                                PauseTimer();
+                            }
                         }
                     }
-                }
-            }
-        }
-        private void SendBroadMessage()
-        {
-            if(m_listSBS.Count > 0 && m_sessionTable.Count > 0) {
-                string strDataLine = m_listSBS[m_sendIndex++];
-
-                if(m_sendIndex >= m_listSBS.Count) m_sendIndex = 0;
-
-                Byte[] sendData = Encoding.ASCII.GetBytes(strDataLine);
-
-
-                lock(((ICollection)m_sessionTable).SyncRoot) {
-                    foreach(AsyncUserToken socketClient in m_sessionTable.Values) {
-                        try {
-                            Send(socketClient.ConnectionId, sendData);
-                        } catch(Exception ee) {
-                            ShowClientMessage("发送数据出现异常：" + ee.Message);
-                            LogBroadcastServerStatus("发送数据出现异常：" + ee.Message);
-                            return;
-                        }
-                    }
-                }
-                ShowClientMessage(strDataLine);
-                Debug.WriteLine(strDataLine);
-            } else {
-                if(m_listSBS.Count <= 0) {
-                    ShowClientMessage("没有数据内容");
-                } else if(m_sessionTable.Count <= 0) {
-                    PauseTimer();
                 }
             }
         }
@@ -675,11 +700,10 @@ namespace TCPServer
         {
             m_clock = Factory.Singleton.Resolve<IClock>();
             m_baseStationSerialiser = new BaseStationSerialiser();
-            StreamReader sr = new StreamReader(@".\780587.log", Encoding.Default);
-            String line;
-            while((line = sr.ReadLine()) != null) {
-                m_listSBS.Add(line + System.Environment.NewLine);
-            }
+            rdTrail.Checked = true;
+
+            ChangeTimerSpeedDefault();
+            //LoadSBSTrail();
             //m_sessionTable = new List<Socket>();
             TimerObject timerObject = new TimerObject();
             TimerCallback timerDelegate = new TimerCallback(CheckStatus);
@@ -700,7 +724,35 @@ namespace TCPServer
             //Trace.AutoFlush=true;
             Debug.AutoFlush = true;
             LoadWaypoints();
-            
+
+        }
+
+        private void LoadSBSTrail(string trail)
+        {
+            if(!string.IsNullOrEmpty(trail)) {
+                m_TrailFileName = Path.Combine(Application.StartupPath, m_TrailPath);
+                m_TrailFileName = Path.Combine(m_TrailFileName, trail);
+
+                using(StreamReader sr = new StreamReader(m_TrailFileName, Encoding.Default)) {
+                    String baseStationLine;
+                    m_listSBS.Clear();
+                    while((baseStationLine = sr.ReadLine()) != null) {
+                        m_listSBS.Add(baseStationLine + System.Environment.NewLine);
+                    }
+                }
+            } else {
+                MessageBox.Show("轨迹文件不存在");
+            }
+        }
+
+        private void LoadSBSTrail()
+        {
+            using(StreamReader sr = new StreamReader(@".\TrailData.log", Encoding.Default)) {
+                String line;
+                while((line = sr.ReadLine()) != null) {
+                    m_listSBS.Add(line + System.Environment.NewLine);
+                }
+            }
         }
         private void LoadWaypoints()
         {
@@ -901,12 +953,19 @@ namespace TCPServer
 
                     m_Speed -= DEFAULT_STEP;
 
-
-                    if(m_Speed <= 0) m_Speed = DEFAULT_SPEED;
+                    if(rdTrail.Checked) {
+                        if(m_Speed <= 0) m_Speed = DEFAULT_SPEED_TRAIL;
+                    } else {
+                        if(m_Speed <= 0) m_Speed = DEFAULT_SPEED_WAYPOINT;
+                    }
                     break;
 
                 default:
-                    m_Speed = DEFAULT_SPEED;
+                    if(rdTrail.Checked) {
+                        m_Speed = DEFAULT_SPEED_TRAIL;
+                    } else {
+                        m_Speed =DEFAULT_SPEED_WAYPOINT ;
+                    }
                     break;
             }
             m_Timer.Change(0, m_Speed);
@@ -919,14 +978,18 @@ namespace TCPServer
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            RestTimer();
+            ResetTimer();
         }
 
-        private void RestTimer()
+        private void ResetTimer()
         {
             PauseTimer();
             m_sendIndex = 0;
-            m_Speed = DEFAULT_SPEED;
+            if(rdTrail.Checked) {
+                m_Speed =DEFAULT_SPEED_TRAIL ;
+            } else {
+                m_Speed = DEFAULT_SPEED_WAYPOINT;
+            }
             StartTimer();
         }
 
@@ -1011,8 +1074,52 @@ namespace TCPServer
             InitWaypoints();
         }
 
+        private void CleanSBS()
+        {
+            TrailName = string.Empty;
+            m_listSBS.Clear();
+        }
+        private void btnListTrail_Click(object sender, EventArgs e)
+        {
+            PauseTimer();
+            frmTrailList trailListView = new frmTrailList(this);
+            if(trailListView.ShowDialog() == DialogResult.OK) {
+                //MessageBox.Show("OK");
+                if(!string.IsNullOrEmpty(TrailName)) {
+                    LoadSBSTrail(TrailName);
+                    if(m_isListing) {
+                        if(m_sessionTable.Count > 0) {
+                            ResetTimer();
+                        }
 
+                    } else {
+                        CleanSBS();
+                    }
+                }
+            } else {
+                //MessageBox.Show("Cancle");
+                CleanSBS();
+            }
+        }
+
+        private void ChangeTimerSpeedDefault()
+        {
+            if(rdTrail.Checked) {
+                m_Speed = DEFAULT_SPEED_TRAIL;
+            } else {
+                m_Speed = DEFAULT_SPEED_WAYPOINT;
+            }
+        }
+
+        private void rdTrail_CheckedChanged(object sender, EventArgs e)
+        {
+            PauseTimer();
+            ChangeTimerSpeedDefault();
+            if(m_isListing) {
+                if(m_sessionTable.Count > 0) {
+                    ResetTimer();
+                }
+            }
+        }
     }
-
-
 }

@@ -17,6 +17,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>broadcast.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -60,11 +64,20 @@
     <Compile Include="frmServer.Designer.cs">
       <DependentUpon>frmServer.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmTrailList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmTrailList.Designer.cs">
+      <DependentUpon>frmTrailList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmServer.resx">
       <DependentUpon>frmServer.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmTrailList.resx">
+      <DependentUpon>frmTrailList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -76,10 +89,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="7277A9170507.log">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="780587.log">
+    <None Include="app.config" />
+    <None Include="TrailData.log">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="BaseStation.sqb" />
@@ -92,16 +103,36 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Trail\78029D.log" />
-    <None Include="Trail\78036A.log" />
-    <None Include="Trail\78057B.log" />
-    <None Include="Trail\7805AD.log" />
-    <None Include="Trail\79A02F.log" />
-    <None Include="Trail\79A030.log" />
-    <None Include="Trail\7BB075.log" />
-    <None Include="Trail\7BB077.log" />
-    <None Include="Trail\7BB081.log" />
-    <None Include="Trail\7BB0A5.log" />
+    <None Include="Trail\78029D.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\78036A.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\78057B.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\7805AD.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\79A02F.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\79A030.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\7BB075.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\7BB077.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\7BB081.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Trail\7BB0A5.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="WayPoints.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -126,6 +157,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="broadcast.ico" />
     <Content Include="DDG.txt" />
     <Content Include="WayPoints.txt" />
   </ItemGroup>
