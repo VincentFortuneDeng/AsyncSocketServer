@@ -52,11 +52,13 @@ namespace TCPServer
 
         private int m_sendIndex = 0;
 
-        private const int DEFAULT_SPEED = 25000;
+        private const int DEFAULT_SPEED = 30000;
 
         private int m_Speed = DEFAULT_SPEED;
 
         private const int DEFAULT_STEP = 50;
+
+        private const int START_DELAY = 500;
 
         //private bool m_Listening;
 
@@ -373,7 +375,7 @@ namespace TCPServer
                 LogBroadcastServerStatus(string.Format("当前客户端连接数:{0}", count.ToString()));
                 LogBroadcastServerStatus(string.Format("{0}上线", ip));
 
-                StartTimer();
+                if(m_sessionTable.Count == 0) StartTimer();
 
             }
         }
@@ -521,7 +523,6 @@ namespace TCPServer
                                 return;
                             }
                         }
-
                     }
                     ShowClientMessage(strDataLine);
                     Debug.WriteLine(strDataLine);
@@ -532,11 +533,12 @@ namespace TCPServer
 
         private void SendBroadcastWayPoints()
         {
-            if(m_listWaypoints.Count > 0) {
+            if(m_sessionTable.Count > 0 && m_listWaypoints.Count > 0) {
                 BaseStationMessage waypointMessage;
                 WayPoint point;
                 for(int i = 0;i < m_listWaypoints.Count;i++) {
                     if(i < m_listWaypoints.Count - 1) {
+                        //发送前几个点呼号及坐标
                         point = m_listWaypoints[i];
                         waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
                         SendBroadMessage(waypointMessage);
@@ -544,19 +546,21 @@ namespace TCPServer
                         waypointMessage = CreateWayPointsPosition(point.Icao24, point.Latitude.GetValueOrDefault(), point.Longitude.GetValueOrDefault());
                         SendBroadMessage(waypointMessage);
                     } else {
+                        //发送最后一点呼号
                         point = m_listWaypoints[i];
                         waypointMessage = CreateWayPointsCallsign(point.Icao24, point.Callsign);
                         SendBroadMessage(waypointMessage);
 
                         WayPoint way;
 
+                        //从后向前发送路线上的点
                         for(int j = m_listWaypoints.Count - 1;j >= 0;j--) {
                             way = m_listWaypoints[j];
                             waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
                             SendBroadMessage(waypointMessage);
                         }
-
-                        for(int j = 0;j < m_listWaypoints.Count - 1;j++) {
+                        //从前向后发送路线上的点
+                        for(int j = 0;j < m_listWaypoints.Count;j++) {
                             way = m_listWaypoints[j];
                             waypointMessage = CreateWayPointsPosition(point.Icao24, way.Latitude.GetValueOrDefault(), way.Longitude.GetValueOrDefault());
                             SendBroadMessage(waypointMessage);
@@ -679,8 +683,8 @@ namespace TCPServer
             //m_sessionTable = new List<Socket>();
             TimerObject timerObject = new TimerObject();
             TimerCallback timerDelegate = new TimerCallback(CheckStatus);
-            //创建一个时间延时2s启动，间隔为1s的定时器
-            m_Timer = new System.Threading.Timer(timerDelegate, timerObject, System.Threading.Timeout.Infinite, 500);//System.Threading.Timeout.Infinite
+            //创建一个时间延时无限启动，间隔为m_Speed的定时器
+            m_Timer = new System.Threading.Timer(timerDelegate, timerObject, System.Threading.Timeout.Infinite, m_Speed);//System.Threading.Timeout.Infinite
 
             cbxIPProtocol.SelectedIndex = 0;
             unassignedCountry.CodeBlock = new CodeBlock();
@@ -695,8 +699,8 @@ namespace TCPServer
 
             //Trace.AutoFlush=true;
             Debug.AutoFlush = true;
-
             LoadWaypoints();
+            
         }
         private void LoadWaypoints()
         {
@@ -773,9 +777,9 @@ namespace TCPServer
             waypoint.MessageGenerated = m_clock.UtcNow;
             waypoint.MessageLogged = m_clock.UtcNow;
             waypoint.MessageType = BaseStationMessageType.Transmission;
+            waypoint.TransmissionType = BaseStationTransmissionType.SurfacePosition;
             waypoint.OnGround = true;
             waypoint.Track = 0;
-            waypoint.TransmissionType = BaseStationTransmissionType.SurfacePosition;
 
             return waypoint;
         }
@@ -787,9 +791,9 @@ namespace TCPServer
             waypoint.Callsign = callsign;
 
             waypoint.Icao24 = icao;
-
+            waypoint.MessageGenerated = m_clock.UtcNow;
+            waypoint.MessageLogged = m_clock.UtcNow;
             waypoint.MessageType = BaseStationMessageType.Transmission;
-
             waypoint.TransmissionType = BaseStationTransmissionType.IdentificationAndCategory;
 
             return waypoint;
@@ -882,7 +886,7 @@ namespace TCPServer
 
         private void StartTimer()
         {
-            m_Timer.Change(0, m_Speed);
+            m_Timer.Change(START_DELAY, m_Speed);
         }
 
         private void SpeedTimer(string command)

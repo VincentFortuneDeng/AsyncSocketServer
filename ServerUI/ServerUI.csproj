@@ -92,6 +92,16 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Trail\78029D.log" />
+    <None Include="Trail\78036A.log" />
+    <None Include="Trail\78057B.log" />
+    <None Include="Trail\7805AD.log" />
+    <None Include="Trail\79A02F.log" />
+    <None Include="Trail\79A030.log" />
+    <None Include="Trail\7BB075.log" />
+    <None Include="Trail\7BB077.log" />
+    <None Include="Trail\7BB081.log" />
+    <None Include="Trail\7BB0A5.log" />
     <None Include="WayPoints.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
