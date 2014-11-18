@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SerialPortController.Properties.Resources" Collapsed="true">
+    <Position X="24" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAACABEAAAgRQAAAAAAAJAAAAAAII=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.Properties.Settings" Collapsed="true">
+    <Position X="20.5" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAAAAAIAAAAAABAAAAAAACAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.CollecterComController" BaseTypeListCollapsed="true">
+    <Position X="14.5" Y="14.25" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAACAQACFABAAAAEAAAAAAAAAAABAQAEAAgCAAAAA=</HashCode>
+      <FileName>CollecterComController.cs</FileName>
+      <NewMemberFileName>SerialController.cs</NewMemberFileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DistancePacket" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="24" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAQAABAAEwAgCAAAAAQCBABACAQAAAEAABQA=</HashCode>
+      <FileName>SerialController.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="SerialPortController.CRCGenerator" Collapsed="true">
+    <Position X="25.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SerialController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.FramePacket" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="25.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAIQCAAAAEwAgCAAAAAgKBABACAQAQAEAAAAA=</HashCode>
+      <FileName>SerialController.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="SerialPortController.SerialController" BaseTypeListCollapsed="true">
+    <Position X="16" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IMIIgBKAoSlQAADGEEgCAQAAJIAIIRCSIKAAoGHSA0A=</HashCode>
+      <FileName>ISerialController.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SerialPortController.DADComController">
+    <Position X="17.25" Y="14.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACFABAAAAEAAAAAAAAAAABAQAAAAgKAQAAA=</HashCode>
+      <FileName>DADComController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DistanceSenser">
+    <Position X="0.5" Y="5" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AACCACAAAAAEBBAEQEBSAACAQgQAAEIABABIAAAAiAA=</HashCode>
+      <FileName>DistanceSenser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DataCollector">
+    <Position X="3.25" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>4UImMCRZDgCE5giAYMEIBwkAUkQpoQBAJAMgAAAAEAA=</HashCode>
+      <FileName>DataCollector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.CollecterController">
+    <Position X="7.5" Y="11.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>ChAAACIEgAAwBIQCgAAIAIEIICRAIAAgACAAACgAAAA=</HashCode>
+      <FileName>CollecterController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DADController">
+    <Position X="10.75" Y="11.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAEgAABAIAAQQAKAACAACQAAAIABAAAACgAIAA=</HashCode>
+      <FileName>DADController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DistanceEventArgs" Collapsed="true">
+    <Position X="22.25" Y="1.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEBAEAAAAAAAAAgAAAABCAACAAAAAgAA=</HashCode>
+      <FileName>ReportEvnetArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.ResponseEventArgs" Collapsed="true">
+    <Position X="25.75" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ResponseEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.SenserController">
+    <Position X="9" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>gAQCCgAEgCAMEMBAABAKCAAAIGQIBBBCIAADICiAAwI=</HashCode>
+      <FileName>SenserController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.OnlineEventArgs" Collapsed="true">
+    <Position X="27.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAEAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>OnlineEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.OnworkEventArgs" Collapsed="true">
+    <Position X="20.5" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>OnlineEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.RtuPacket" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="27.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIQAAAAAEwAgCAAAAAgKBABACAQAQAEAABAA=</HashCode>
+      <FileName>RtuPacket.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="SerialPortController.RecordSpliteState" Collapsed="true">
+    <Position X="22.25" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>RecordSpliteState.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.WorkStateEventArgs" Collapsed="true">
+    <Position X="22.25" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAAgAAABAAAAAA=</HashCode>
+      <FileName>WorkStateEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DistanceData" Collapsed="true">
+    <Position X="20.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAABAEAAAAAAAAQgAAAABCAABAAAAAgAA=</HashCode>
+      <FileName>DistanceData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.Senser">
+    <Position X="2" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAEBAAgAMAAAAAAAAIAAAACgAAAAIAAAAA=</HashCode>
+      <FileName>Senser.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SerialPortController.CRC16Generator" Collapsed="true">
+    <Position X="24" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACgIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SerialController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.DataRecord" Collapsed="true">
+    <Position X="27.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAA=</HashCode>
+      <FileName>CollecterController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SerialPortController.ComOnEventArgs" Collapsed="true">
+    <Position X="22.25" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ISerialController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.Analyzer" Collapsed="true">
+    <Position X="20.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Interface Name="SerialPortController.ISerialController" Collapsed="true">
+    <Position X="24" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IEAAgAAAACBAAAAAAEACAAAAAAAAAAAAICAAAAGAAAA=</HashCode>
+      <FileName>ISerialController.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="SerialPortController.IDataFramePacket" Collapsed="true">
+    <Position X="20.5" Y="4.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEwAACAAAAAACAABACAQAAAAAAAAA=</HashCode>
+      <FileName>SerialController.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="SerialPortController.ISenser" Collapsed="true">
+    <Position X="22.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAEBAAgAEAAAAAAAAAAAAACgAAAAAAAAAA=</HashCode>
+      <FileName>ISenser.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="SerialPortController.DataPacketType" Collapsed="true">
+    <Position X="20.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAAgAAAAAAAAAABAAAAAAAEAAAAA=</HashCode>
+      <FileName>SerialController.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.ReportWorkMode" Collapsed="true">
+    <Position X="20.5" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ISerialController.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.PacketCommandType" Collapsed="true">
+    <Position X="24" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PacketCommandType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.RtuCommandType" Collapsed="true">
+    <Position X="22.25" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>gQAgAARBAAAAAACAQAAABAAAEAAAIQAABAAAAAAAAAA=</HashCode>
+      <FileName>RtuCommandType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.PollModeType" Collapsed="true">
+    <Position X="25.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAABQAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>PollModeType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.RtuReadWriteType" Collapsed="true">
+    <Position X="24" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAo=</HashCode>
+      <FileName>RtuReadWriteType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.DeviceWorkState" Collapsed="true">
+    <Position X="22.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAABAAAAQAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SenserWorkState.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.SignType" Collapsed="true">
+    <Position X="27.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>SignType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.PulseAngle" Collapsed="true">
+    <Position X="27.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>DistanceSenser.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SerialPortController.RunStateType" Collapsed="true">
+    <Position X="25.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>DistanceSenser.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="微软雅黑" Size="9" />
+</ClassDiagram>

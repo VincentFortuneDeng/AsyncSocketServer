@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SenserModels.Data.SQLite.DataProvider">
+    <Position X="0.5" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAgAAQALAAAAgAAQAACYAAJAUQAARAEQCJAkCAg=</HashCode>
+      <FileName>DataProcess.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SenserModels.Data.SQLiteProvider">
+    <Position X="4.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAQAAAAAAABAABAAAAAAwAQACAAAAAU=</HashCode>
+      <FileName>SQLiteProvider.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="微软雅黑" Size="9" />
+</ClassDiagram>

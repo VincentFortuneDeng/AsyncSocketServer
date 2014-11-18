@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SenserModels.DataCenter" Collapsed="true">
+    <Position X="7.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAgAAAQERAAAAQAAESCAEAAAAAgAAUBEQGAQEAAA=</HashCode>
+      <FileName>DataCenter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.POPData" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>POPData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.AnalyticalData" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AnalyticalData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.Analyzer" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAIAAAAAAAAAAAAAAAQAAAAAAg=</HashCode>
+      <FileName>Analyzer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.BaseData" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.RtuRecordKey" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>RecordKey.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitor">
+    <Position X="9.5" Y="1.5" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="SenserModels.DataMonitor.MotorUnitRowChangeEventHandler" Collapsed="true">
+        <TypeIdentifier />
+      </Delegate>
+      <Class Name="SenserModels.DataMonitor.StationInfoRowChangeEvent" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.MotorUnitRowChangeEvent" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.StationInfoRow" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Delegate Name="SenserModels.DataMonitor.StationInfoRowChangeEventHandler" Collapsed="true">
+        <TypeIdentifier />
+      </Delegate>
+      <Class Name="SenserModels.DataMonitor.CatalogRowChangeEvent">
+        <TypeIdentifier />
+      </Class>
+      <Delegate Name="SenserModels.DataMonitor.WellInfoRowChangeEventHandler" Collapsed="true">
+        <TypeIdentifier />
+      </Delegate>
+      <Class Name="SenserModels.DataMonitor.WellInfoDataTable" Collapsed="true">
+        <TypeIdentifier />
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.CatalogDataTable">
+        <TypeIdentifier />
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.StationInfoDataTable" Collapsed="true">
+        <TypeIdentifier />
+        <Lollipop Position="0.2" />
+      </Class>
+      <Delegate Name="SenserModels.DataMonitor.CollectingDataRowChangeEventHandler">
+        <TypeIdentifier />
+      </Delegate>
+      <Delegate Name="SenserModels.DataMonitor.CatalogRowChangeEventHandler">
+        <TypeIdentifier />
+      </Delegate>
+      <Class Name="SenserModels.DataMonitor.MotorUnitDataTable" Collapsed="true">
+        <TypeIdentifier />
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.CollectingDataRow">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.CollectingDataDataTable">
+        <TypeIdentifier />
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.WellInfoRow" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.MotorUnitRow" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.CollectingDataRowChangeEvent">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.CatalogRow">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="SenserModels.DataMonitor.WellInfoRowChangeEvent" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAEAAEAIwAUAApABQSCQAApQAgCaBgAgCAABgEABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitorTableAdapters.CatalogTableAdapter" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>EASAAGAAEAAAAAcAIAAAAAAAACEICAAAAAAAAAAABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitorTableAdapters.CollectingDataTableAdapter">
+    <Position X="0.5" Y="5.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>EASAAGAAEAAAAAcAIAAAAAAAACEICAAAAAAAAAAABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitorTableAdapters.TableAdapterManager" Collapsed="true">
+    <Position X="4.5" Y="4.25" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AQAAACAAAABABAGBIAAAMAAiCAACoAAAAAVAADAABAQ=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.NodeInfoProcess" Collapsed="true">
+    <Position X="0.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAQAIAAAACAAQgAAAAABAEAAAAAAAAAAACAA=</HashCode>
+      <FileName>NodeInfoProcess.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DistanceRecordKey" Collapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAg=</HashCode>
+      <FileName>RecordKey.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitorTableAdapters.WellInfoTableAdapter">
+    <Position X="6.75" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EASAAGAAEAAAAAcAIAAAAAAAACEICAAAAAAAAAAABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitorTableAdapters.MotorUnitTableAdapter" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EASAAGAAEAAAAAcAIAAAAAAAACEICAAAAAAAAAAABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.DataMonitorTableAdapters.StationInfoTableAdapter" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EASAAGAAEAAAAAcAIAAAAAAAACEICAAAAAAAAAAABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SenserModels.Entity.WellInfoKey" Collapsed="true">
+    <Position X="4.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>WellInfoKey.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="SenserModels.OutputFileType" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAACAAAAAA=</HashCode>
+      <FileName>FileType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="微软雅黑" Size="9" />
+</ClassDiagram>
