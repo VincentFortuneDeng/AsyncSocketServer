@@ -5,11 +5,10 @@ using System.Threading;
 using System.IO.Ports;
 using System.IO;
 using System.Diagnostics;
-using System.Windows.Forms;
 
 namespace SerialPortController
 {
-    public class CollecterComController : SerialController
+    public class DADListener : SerialListener
     {
         #region private const
 
@@ -29,7 +28,7 @@ namespace SerialPortController
         #endregion public enum
 
         #region  Constructor
-        public CollecterComController(string portName, int baudRate, ReportWorkMode reportMode, bool discardNull)
+        public DADListener(string portName, int baudRate, ReportWorkMode reportMode, bool discardNull)
             : base(portName, baudRate, reportMode, discardNull)
         {
 
@@ -48,7 +47,6 @@ namespace SerialPortController
                 throw new ArgumentException("data", "must have 16 items or less");
             }
 
-            //Trace.WriteLine("ping");
             return SendReturnData(address, type, (byte)data.Length, data);
         }
         /*
@@ -165,28 +163,44 @@ namespace SerialPortController
         //发送数据后返回响应数据
         public override byte[] SendReturnData(UInt32 address, byte type, byte dataLength, byte[] data)
         {
-            RtuPacket packet = (RtuPacket)Send(address, type, dataLength, data);
+            IDataFramePacket packet = Send(address, type, dataLength, data);
 
             if (null != packet)
             {
-                return packet.Data;
+                return Encoding.ASCII.GetBytes(packet.GetDataStrings()[0]);
             }
-
             else
             {
                 return null;
             }
         }
 
-        //发送数据返回布尔值
-        public override bool SendReturnBool(UInt32 address, byte type, byte dataLength, byte[] data)
+        //发送数据后返回响应数据
+        public DistanceData SendReturnData(byte address, byte type, string data)
         {
-            RtuPacket packet = (RtuPacket)Send(address, type, dataLength, data);
+            DistancePacket packet = (DistancePacket)Send(address, type, data);
 
             if (null != packet)
             {
-                return (type == (packet.Type & 0x1f)) && (DataPacketType.NORMAL_RESPONSE ==
-                    responsePacket.PacketType && (byte)(address >> 16) == packet.Address);
+                DistanceData recordData = GenerateRecordData(packet);
+
+                return recordData;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public bool SendReturnBool(byte address, byte type, string data)
+        {
+            DistancePacket packet = (DistancePacket)Send(address, type, data);
+
+            if (null != packet)
+            {
+                return (type == packet.Type % 0xA
+                    && DataPacketType.NORMAL_RESPONSE == responsePacket.PacketType
+                    && packet.BoolData && address == packet.Address);
             }
 
             else
@@ -194,57 +208,99 @@ namespace SerialPortController
                 return false;
             }
         }
-        private const byte READ_VAULES = 0x03;
-        private const byte WRITE_MULTI_VALUE = 0x10;
-        private const byte WRITE_SINGLE_VALUE = 0x06;
+
+        //发送数据返回布尔值
+        public override bool SendReturnBool(UInt32 address, byte type, byte dataLength, byte[] data)
+        {
+            IDataFramePacket packet = Send(address, type, dataLength, data);
+
+            if (null != packet)
+            {
+                return (type == (packet.Type & 0x0f) && DataPacketType.NORMAL_RESPONSE == responsePacket.PacketType);
+            }
+
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool AddPacket(string stringPacket)
+        {
+            string[] pakcetFields = stringPacket.Split('.');
+
+            IDataFramePacket packet = CreatePacket(stringPacket);//创建包
+            //ushort calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
+            //if (calculatedCRC == packet.CRC)
+            //{
+            switch (packet.PacketType)
+            {
+                case DataPacketType.NORMAL_RESPONSE://正常响应包
+                    AddResponsePacket(packet);//添加响应包 并通知发送线程
+                    break;
+
+                case DataPacketType.NORMAL_REPORT://正常报告包 
+                    AddReportPacket(packet);//添加报告包 并通知报告线程
+                    break;
+
+                case DataPacketType.SPECIAL_RESPONSE://错误响应包
+                    AddResponsePacket(packet);//添加响应包 并通知发送线程
+                    AddReportPacket(packet);//添加报告包 并通知报告线程
+                    break;
+            }
+            //}
+            /*
+           if (calculatedCRC != packet.CRC)
+           {
+               string outputString = "";
+               foreach (byte bt in packet.Data)
+               {
+                   outputString += Convert.ToString(bt, 16);
+               }
+               //Trace.WriteLine("Recevie " + outputString);
+               Console.WriteLine("Recevie " + outputString + "CRC ERROR!(CRC 错误): Calculated(计算值) CRC={0} Actual(实际值) CRC={1}",
+                   Convert.ToString(calculatedCRC, 16), packet.CRC);
+
+               return false;
+           }*/
+
+            return true;
+
+        }
 
         //添加数据包
         protected override bool AddPacket(byte[] buffer, int startIndex)
         {
             IDataFramePacket packet = CreatePacket(buffer, startIndex);//创建包
 
-            //byte[] toCRCBytes = new byte[packet.Type == READ_VAULES ? packet.DataLength + 3 : 6];
+            ushort calculatedCRC = CRCGenerator.GenerateCRC(buffer, startIndex, packet.DataLength + 2, CRC_SEED);//重新计算CRC
 
-            //Array.Copy(buffer, startIndex, toCRCBytes, 0, toCRCBytes.Length);
-            //CRC16Generator crc16Generator = new SerialPortController.CRC16Generator();
-            ushort calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
-            //ushort calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
+            switch (packet.PacketType)
+            {
+                case DataPacketType.NORMAL_RESPONSE://正常响应包
+                    AddResponsePacket(packet);//添加响应包 并通知发送线程
+                    break;
 
+                case DataPacketType.NORMAL_REPORT://正常报告包 
+                    AddReportPacket(packet);//添加报告包 并通知报告线程
+                    break;
+
+                case DataPacketType.SPECIAL_RESPONSE://错误响应包
+                    AddResponsePacket(packet);//添加响应包 并通知发送线程
+                    AddReportPacket(packet);//添加报告包 并通知报告线程
+                    break;
+            }
+
+            /*
             if (calculatedCRC != packet.CRC)
             {
-                //MessageBox.Show("CRC错误");
-                //string outputString = "";
-                //calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
-                /*foreach (byte bt in packet.Data)
-                {
-                    outputString += " " + Convert.ToString(bt, 16);
-                }*/
-                //Trace.WriteLine("Recevie " + outputString);
-                Console.WriteLine("Recevie:" + "CRC ERROR!(CRC 错误): Calculated(计算值) CRC={0} Actual(实际值) CRC={1}",
-                    Convert.ToString(calculatedCRC, 16), Convert.ToString(packet.CRC, 16));
+                Console.WriteLine("CRC ERROR!(CRC 错误): Calculated(计算值) CRC={0} Actual(实际值) CRC={1}",
+                    Convert.ToString(calculatedCRC, 16), packet.CRC);
 
                 return false;
-            }
+            }*/
 
-            else //if (calculatedCRC == packet.CRC)
-            {
-                switch (packet.PacketType)
-                {
-                    case DataPacketType.NORMAL_RESPONSE://正常响应包
-                        AddResponsePacket(packet);//添加响应包 并通知发送线程
-                        break;
-
-                    case DataPacketType.NORMAL_REPORT://正常报告包 
-                        AddReportPacket(packet);//添加报告包 并通知报告线程
-                        break;
-
-                    case DataPacketType.SPECIAL_RESPONSE://错误响应包
-                        AddResponsePacket(packet);//添加响应包 并通知发送线程
-                        AddReportPacket(packet);//添加报告包 并通知报告线程
-                        break;
-                }
-                return true;
-            }
+            return true;
         }
 
         //添加数据包
@@ -330,214 +386,164 @@ namespace SerialPortController
             }
         }
 
-        //二进制字节数据转换为包数据
-        protected override IDataFramePacket CreatePacket(byte[] buffer, int startIndex)
+        //private const byte REDA_VALUES = 0x03;
+        //private const byte WRITE_MULTI_VAULE = 0x10;
+        //private const byte WRITE_SINGLE_VALUE = 0x06;
+
+        protected IDataFramePacket CreatePacket(string stringPacket)
         {
-            byte type = buffer[startIndex + 1];
-            byte dataLength = 0;
-            ushort crc = 0;
-            byte[] data = new byte[0];
+            string[] packetFields = stringPacket.Split('.');
 
-            switch (type)
+            byte address = Convert.ToByte(packetFields[1]);
+
+            byte type = Convert.ToByte(packetFields[0], 16);
+
+
+            if (packetFields.Length == 3)
             {
-                case READ_VAULES:
-                    dataLength = buffer[(startIndex + 2) % buffer.Length];
-                    data = new byte[dataLength];
+                bool boolData = packetFields[2] == "1" ? true : false;
 
-                    for (int i = 0; i < dataLength; i++)//缓冲区为循环设计
-                    {
-                        data[i] = buffer[(startIndex + 3 + i) % buffer.Length];
-                    }
-
-                    crc |= (ushort)(buffer[(startIndex + 3 + dataLength) % buffer.Length] << 8);
-                    crc |= (ushort)buffer[(startIndex + 3 + dataLength + 1) % buffer.Length];
-
-                    break;
-
-                case WRITE_SINGLE_VALUE:
-                    //dataLength = 0;
-                    //data = new byte[dataLength];
-
-                    crc |= (ushort)(buffer[6] << 8);
-                    crc |= (ushort)buffer[7];
-
-                    break;
-
-                case WRITE_MULTI_VALUE:
-                    //dataLength = 0;
-                    //data = new byte[dataLength];
-                    /*
-                    for (int i = 0; i < dataLength; i++)//缓冲区为循环设计
-                    {
-                        data[i] = buffer[(startIndex + 3 + i) % buffer.Length];
-                    }*/
-
-                    crc |= (ushort)(buffer[(startIndex + 6 + dataLength) % buffer.Length] << 8);
-                    crc |= (ushort)buffer[(startIndex + 6 + dataLength + 1) % buffer.Length];
-
-                    break;
-
-                default:
-
-                    break;
+                return new DistancePacket(address, type, boolData);
             }
 
-            return new RtuPacket((buffer[startIndex]), type, dataLength, data, crc);
+            else
+            {
+                if (this.reportMode == ReportWorkMode.Initiative)
+                {
+                    type |= 0xf0;
+                }
+
+                string stringData = string.Join("|", packetFields, 2, packetFields.Length - 2);
+
+                return new DistancePacket(address, type, stringData);
+            }
+        }
+
+        //二进制字节数据转换为包数据
+        protected override IDataFramePacket CreatePacket(byte[] buffer, int startIndex)
+        {/*
+            byte type = buffer[startIndex + 1];
+
+            byte dataLength = (type == REDA_VALUES ?
+                buffer[(startIndex + 2) % buffer.Length] :
+                buffer[(startIndex + 3) % buffer.Length]);//缓冲区为循环设计
+
+            byte[] data = (type == REDA_VALUES ? new byte[dataLength] : new byte[1]);
+            ushort crc = 0;
+            if (type != REDA_VALUES)
+            {
+                for (int i = 0; i < dataLength; i++)//缓冲区为循环设计
+                {
+                    data[i] = buffer[(startIndex + 3 + i) % buffer.Length];
+                }
+            }
+
+            crc |= (ushort)(buffer[(startIndex + 3 + dataLength) % buffer.Length] << 8);
+            crc |= (ushort)buffer[(startIndex + 3 + dataLength + 1) % buffer.Length];
+
+            return new RtuPacket((byte)(buffer[startIndex] >> 16), type, dataLength, data, crc);
+          * */
+            throw new NotImplementedException();
         }
         #endregion REVIEW
 
         //发送数据
-
+        private const string SEPARATOR = ".";
 
         //发送数据
-
-
-        public override IDataFramePacket Send(UInt32 address, byte type/*命令头*/, byte dataLength/*数据长度*/, byte[] data/*数据内容*/)
+        private IDataFramePacket Send(byte address, byte type/*命令头*/, string data/*数据内容*/)
         {
-            ushort crc = 0x0000;
-            //string outputstr = "";
-            //CRC16Generator crc16Generator = new CRC16Generator();
-            switch (type)
+            string stringPacketXMitBuffer = FRAME_HEAD + Convert.ToString(type, 10);
+            stringPacketXMitBuffer += SEPARATOR + Convert.ToString(address, 10);
+            if (!string.IsNullOrEmpty(data))
             {
-                case READ_VAULES:
-                    if (dataLength == 0)
-                    {
-                        throw new ArgumentException("发送数据无效");
-                    }
-                    //XMit transmit 传输，转送，传达，传导，发射，遗传，传播，发射信号(代号)
-                    packetXMitBuffer[0] = (byte)(address >> 16);//设备地址
-                    packetXMitBuffer[1] = type;//命令头 
-                    packetXMitBuffer[2] = (byte)(address >> 8);//数据地址
-                    packetXMitBuffer[3] = (byte)(address);//数据地址
-                    packetXMitBuffer[4] = 0x00;
-                    packetXMitBuffer[5] = (byte)(dataLength / 2);//数据长度
+                stringPacketXMitBuffer += SEPARATOR + data;
+            }
+            stringPacketXMitBuffer += FRAME_TAIL;
+            //using (StreamWriter sw = new StreamWriter(@".\" + address + ".log", true, Encoding.ASCII))
+            //{
+            //    sw.WriteLine(stringPacketXMitBuffer);
+            //    sw.Close();
+            //}
+            
+            //ushort crc;
+            /*
+            if ((null == data && dataLength != 0) || dataLength > data.Length)
+            {
+                throw new ArgumentException("发送数据无效");
+            }*/
+            //XMit transmit 传输，转送，传达，传导，发射，遗传，传播，发射信号(代号)
+            /*
+            packetXMitBuffer[0] = type;//命令头 
+            packetXMitBuffer[1] = dataLength;//数据长度*/
+            /*if (0 != dataLength)
+            {
+                Array.Copy(data, 0, packetXMitBuffer, 2, dataLength);
+            }*/
 
-                    crc = CRC16Generator.GenerateCRC(packetXMitBuffer, 0, 6);//生成CRC校验码
-                    packetXMitBuffer[6] = (byte)(crc >> 8);//高8位
-                    packetXMitBuffer[7] = (byte)crc;//低8位
+            //crc = CRCGenerator.GenerateCRC(packetXMitBuffer, dataLength + 2, CRC_SEED);//生成CRC校验码
+            //packetXMitBuffer[2 + dataLength + 1] = (byte)(crc >> 8);//高8位
+            //packetXMitBuffer[2 + dataLength] = (byte)crc;//低8位
 
-                    lock (responseSignal)
-                    {
-                        responsePacket = null;//清空响应包
-                        // comPort
+            lock (responseSignal)
+            {
+                responsePacket = null;//清空响应包
+                // comPort
 
-                        /*string outputstr = "";
+                com.Write(stringPacketXMitBuffer);
 
-                        for (int i = 0; i < 8; i++)
-                        {
-                            outputstr += Convert.ToString(packetXMitBuffer[i], 16)+" ";
-                        }*/
+                //DateTime sendTime = DateTime.Now;
 
-                        //Trace.WriteLine("send8 " + outputstr);
-                        com.Write(packetXMitBuffer, 0, 8);
-                        //MessageBox.Show(outputstr);
-                        //DateTime sendTime = DateTime.Now;
-                        if (Monitor.Wait(responseSignal, (int)(MAX_RESPONSE_TIME + (dataLength + 5) * 8L / (packetXMitBuffer[0] == 3 ? 19200 : 4800) * 1000)))//发送后等待响应
-                        {
-                            //MessageBox.Show("Receive");
-                            //Trace.WriteLine(DateTime.Now - sendTime);
-                            return responsePacket;
-                        }
-                    }
-
-                    break;
-
-                case WRITE_MULTI_VALUE:
-                    if ((data == null && dataLength != 0) || dataLength > data.Length)
-                    {
-                        throw new ArgumentException("发送数据无效");
-                    }
-
-                    //XMit transmit 传输，转送，传达，传导，发射，遗传，传播，发射信号(代号)
-                    packetXMitBuffer[0] = (byte)(address >> 16);//设备地址
-                    packetXMitBuffer[1] = type;//命令头 
-                    packetXMitBuffer[2] = (byte)(address >> 8);//数据地址
-                    packetXMitBuffer[3] = (byte)(address);//数据地址
-                    packetXMitBuffer[4] = 0x00;
-                    packetXMitBuffer[5] = (byte)(dataLength / 2);//数据长度
-                    packetXMitBuffer[6] = dataLength;//数据长度
-                    if (0 != dataLength)
-                    {
-                        Array.Copy(data, 0, packetXMitBuffer, 7, dataLength);
-                    }
-                    crc = CRC16Generator.GenerateCRC(packetXMitBuffer, 0, dataLength + 7);//生成CRC校验码
-                    packetXMitBuffer[7 + dataLength] = (byte)(crc >> 8);//高8位
-                    packetXMitBuffer[7 + dataLength + 1] = (byte)crc;//低8位
-
-                    lock (responseSignal)
-                    {
-                        responsePacket = null;//清空响应包
-                        // comPort
-                        /*string outputstr = "";
-
-                        for (int i = 0; i < dataLength + 9; i++)
-                        {
-                            outputstr += Convert.ToString(packetXMitBuffer[i], 16) + " ";
-                        }*/
-                        //Trace.WriteLine((dataLength + 9) + "send " + outputstr);
-                        com.Write(packetXMitBuffer, 0, dataLength + 9);
-
-                        //MessageBox.Show(outputstr);
-                        //DateTime sendTime = DateTime.Now;
-                        if (Monitor.Wait(responseSignal, (int)(MAX_RESPONSE_TIME + 8 * 8L / (packetXMitBuffer[0] == 3 ? 19200 : 4800) * 1000)))//发送后等待响应
-                        {
-                            //Trace.WriteLine(DateTime.Now - sendTime);
-                            //MessageBox.Show("Receive");
-                            return responsePacket;
-                        }
-                    }
-
-                    break;
-
-                case WRITE_SINGLE_VALUE:
-                    if ((data == null && dataLength != 0) || dataLength > data.Length)
-                    {
-                        throw new ArgumentException("发送数据无效");
-                    }
-                    //XMit transmit 传输，转送，传达，传导，发射，遗传，传播，发射信号(代号)
-                    packetXMitBuffer[0] = (byte)(address >> 16);//设备地址
-                    packetXMitBuffer[1] = type;//命令头
-                    packetXMitBuffer[2] = (byte)(address >> 8);//数据地址
-                    packetXMitBuffer[3] = (byte)address;//数据地址
-                    if (0 != dataLength)
-                    {
-                        Array.Copy(data, 0, packetXMitBuffer, 4, dataLength);
-                    }
-                    crc = CRC16Generator.GenerateCRC(packetXMitBuffer, 0, 6);//生成CRC校验码
-                    packetXMitBuffer[4 + dataLength] = (byte)(crc >> 8);//高8位
-                    packetXMitBuffer[4 + dataLength + 1] = (byte)crc;//低8位
-
-                    lock (responseSignal)
-                    {
-                        responsePacket = null;//清空响应包
-                        // comPort
-                        /*string outputstr = "";
-
-                        for (int i = 0; i < 8; i++)
-                        {
-                            outputstr += Convert.ToString(packetXMitBuffer[i], 16) + " ";
-                        }*/
-                        //Trace.WriteLine("send8 " + outputstr);
-                        com.Write(packetXMitBuffer, 0, 8);
-
-                        //MessageBox.Show(outputstr);
-                        //DateTime sendTime = DateTime.Now;
-                        if (Monitor.Wait(responseSignal, (int)(MAX_RESPONSE_TIME + 8 * 8L / (packetXMitBuffer[0] == 3 ? 19200 : 4800) * 1000)))//发送后等待响应
-                        {
-                            //Trace.WriteLine(DateTime.Now - sendTime);
-                            //MessageBox.Show("Receive");
-                            return responsePacket;
-                        }
-                    }
-
-                    break;
-
-                default:
-
-                    break;
+                if (Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
+                {
+                    //Trace.WriteLine(DateTime.Now - sendTime);
+                    //using (StreamWriter sw = new StreamWriter(@".\" + address + ".log", true, Encoding.ASCII))
+                    //{
+                    //    sw.WriteLine(DateTime.Now - sendTime);
+                    //    sw.Close();
+                    //}
+                    return responsePacket;
+                }
             }
 
-            RaiseOfflineEvent(new OnlineEventArgs((byte)(address >> 16), false));
+            RaiseOfflineEvent(new OnlineEventArgs(address, false));
+            return null;//响应超时
+        }
+
+        private IDataFramePacket Send(ushort address, byte type/*命令头*/, byte dataLength/*数据长度*/, byte[] data/*数据内容*/)
+        {
+            //ushort crc;
+
+            if ((null == data && dataLength != 0) || dataLength > data.Length)
+            {
+                throw new ArgumentException("发送数据无效");
+            }
+            //XMit transmit 传输，转送，传达，传导，发射，遗传，传播，发射信号(代号)
+
+            packetXMitBuffer[0] = type;//命令头 
+            packetXMitBuffer[1] = dataLength;//数据长度
+            if (0 != dataLength)
+            {
+                Array.Copy(data, 0, packetXMitBuffer, 2, dataLength);
+            }
+
+            //crc = CRCGenerator.GenerateCRC(packetXMitBuffer, dataLength + 2, CRC_SEED);//生成CRC校验码
+            //packetXMitBuffer[2 + dataLength + 1] = (byte)(crc >> 8);//高8位
+            //packetXMitBuffer[2 + dataLength] = (byte)crc;//低8位
+
+            lock (responseSignal)
+            {
+                responsePacket = null;//清空响应包
+                // comPort
+
+                com.Write(packetXMitBuffer, 0, dataLength + 4);
+                if (Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
+                {
+
+                    return responsePacket;
+                }
+            }
+
             return null;//响应超时
         }
 
@@ -642,37 +648,29 @@ namespace SerialPortController
         {
             try
             {
-                byte[] receiveBuffer = new byte[1024];//接收缓冲区
-                int bytesRead = 0;//已读字节
-                int bufferIndex = 0;//缓冲区索引
-                int startPacketIndex = 0;//包开始索引
-                int expectedPacketLength = -1;//期望包长度
-                bool expectedPacketLengthIsSet = false;//期望包长度是否设置
-                int numBytesToRead = receiveBuffer.Length;//要读取的字节数量
+                string receiveBuffer = string.Empty;
+                string stringPacket = string.Empty;
+                int startPacketIndex = -1;//当前包开始索引
+                int nextStartPacketIndex = -1;
+                int endPacketIndex = -1;
+                bool packetFrameHeaderIsSet = false;//包开始符号是否设置
 
-                //消息循环
+                //线程循环
                 while (true)
                 {
-                    //MessageBox.Show("Run"+workThreadRun); 
                     if (workThreadRun)
                     {
-                        //MessageBox.Show(string.Format("expectedPacketLengthIsSet{0},bytesRead{1}", expectedPacketLengthIsSet, bytesRead));
                         //因为该Demo协议 包长度在第二位 所以在期望包长度没有设置的情况下 bytesRead<=1也是继续读取的条件
-                        if (expectedPacketLengthIsSet || 3 > bytesRead)
+                        if (packetFrameHeaderIsSet || 1 > receiveBuffer.Length)//复制存储缓冲区数据
                         {
                             //If the expectedPacketLength has been or no bytes have been read
                             //翻译:如果预期包长度已经设置或者没有字节已经被读取
                             //This covers the case that more then 1 entire packet has been read in at a time
                             //翻译:这包含一次读取超过一个完整包的情况
                             // comPort
-
                             try
                             {
-                                //MessageBox.Show(bytesRead.ToString());
-                                bytesRead += com.Read(receiveBuffer, bufferIndex, numBytesToRead);//读取字节数据
-                                //Trace.WriteLine("bytesRead" + bytesRead);
-                                bufferIndex = startPacketIndex + bytesRead;//修改缓冲区下一位置指针
-                                //MessageBox.Show(bytesRead.ToString());
+                                receiveBuffer += com.ReadExisting();//读取字节数据//bufferIndex = startPacketIndex + bytesRead;//修改缓冲区下一位置指针
                             }
 
                             catch (TimeoutException)
@@ -681,69 +679,54 @@ namespace SerialPortController
                             }
                         }
 
-                        if (3 <= bytesRead)//长度超过1说明期望包长度字节应该出现(在第二位)
+                        if (1 <= receiveBuffer.Length)//长度超过1说明期望包长度字节应该出现(在第二位) 处理已接收缓冲区数据
                         {
-                            //The buffer has the dataLength for the packet
+                            //The buffer has the singleRecordLength for the packet
                             //翻译:缓冲区已经存在包数据长度
-                            if (!expectedPacketLengthIsSet)//设置包长度
+                            if (!packetFrameHeaderIsSet)//设置帧开始标志
                             {
-                                //If the expectedPacketLength has not been set for this packet
-                                //如果期望包长度没有设置
-                                int lenData = (receiveBuffer[(1 + startPacketIndex) % receiveBuffer.Length] == READ_VAULES ?
-                                    receiveBuffer[(2 + startPacketIndex) % receiveBuffer.Length] + 5 : 8);
-                                byte packetType = receiveBuffer[(1 + startPacketIndex) % receiveBuffer.Length];
-                                byte address = receiveBuffer[startPacketIndex % receiveBuffer.Length];
-                                //加载地址集合、包类型集合
-                                if ((packetType == READ_VAULES || packetType == WRITE_MULTI_VALUE || packetType == WRITE_SINGLE_VALUE) &&
-                                    (address == 1 || address == 2 || address == 3 || address == 0) && lenData <= MAX_PACKET_LENGTH)
-                                {
-                                    expectedPacketLength = lenData;//4字节为附加字节 CRC2 命令1 长度1
-                                    expectedPacketLengthIsSet = true;//长度已经设置
-                                }
+                                startPacketIndex = receiveBuffer.IndexOf(FRAME_HEAD);
 
-                                else
+                                packetFrameHeaderIsSet = startPacketIndex != -1;
+                                if (!packetFrameHeaderIsSet)
                                 {
-                                    expectedPacketLengthIsSet = false;//期望包长度重置(已经收集到一个包数据)
-                                    //The buffer contains only the bytes for this packet
-                                    //翻译:缓冲区包含仅一个包的字节数据
-                                    bytesRead = 0;//重置接收字节数据计数器
-                                    bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                    receiveBuffer = string.Empty;
                                 }
                             }
 
-                            if (bytesRead >= expectedPacketLength)//已经有至少一个包长度的字节数据
+                            if (packetFrameHeaderIsSet)//包开始符已经设置
                             {
-                                //The buffer has atleast as many bytes for this packet
-                                //翻译:缓冲区已经存在至少一个包或者多于一个包的字节数据
-                                bool added = AddPacket(receiveBuffer, startPacketIndex);
-                                //数据添加到包
-                                expectedPacketLengthIsSet = false;//期望包长度重置(已经收集到一个包数据)
-                                if (bytesRead == expectedPacketLength || !added)//正好收集到一个包数据
+                                endPacketIndex = receiveBuffer.IndexOf(FRAME_TAIL);
+                                if (endPacketIndex != -1)
                                 {
-                                    //The buffer contains only the bytes for this packet
-                                    //翻译:缓冲区包含仅一个包的字节数据
-                                    bytesRead = 0;//重置接收字节数据计数器
-                                    bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
-                                }
-                                //缓冲区字节数据多于1个包的字节数据
-                                else
-                                {
-                                    //The buffer also has bytes for the next packet
-                                    //翻译:缓冲区包含下一数据包的字节数据
-                                    startPacketIndex += expectedPacketLength;//下一包的开始位置
-                                    startPacketIndex %= receiveBuffer.Length;//缓冲区溢出循环
-                                    bytesRead -= expectedPacketLength;//记录下下一包以读取数据字节数
-                                    bufferIndex = startPacketIndex + bytesRead;//缓冲区位置计数
+                                    stringPacket = receiveBuffer.Substring(startPacketIndex, endPacketIndex - startPacketIndex + 1);
+                                    receiveBuffer = receiveBuffer.Remove(startPacketIndex, endPacketIndex - startPacketIndex + 1);
+
+                                    AddPacket(stringPacket.Substring(1, stringPacket.Length - 2));
+
+                                    packetFrameHeaderIsSet = false;
+                                    nextStartPacketIndex = receiveBuffer.IndexOf(FRAME_HEAD);
+                                    if (!string.IsNullOrEmpty(receiveBuffer))
+                                    {
+                                        if (nextStartPacketIndex > 0)
+                                        {
+                                            receiveBuffer = receiveBuffer.Remove(0, nextStartPacketIndex);
+                                        }
+
+                                        else if (nextStartPacketIndex == -1)
+                                        {
+                                            receiveBuffer = string.Empty;
+                                        }
+                                    }
                                 }
                             }
+
                         }
-
-                        bufferIndex %= receiveBuffer.Length;//缓冲区溢出循环
-                        numBytesToRead = bufferIndex < startPacketIndex ? startPacketIndex - bufferIndex : receiveBuffer.Length - bufferIndex;//控制缓冲区循环使用时读取字节数
                     }
-
                     Thread.Sleep(1);
                 }
+
+
             }
 
             catch (IOException ioe)
@@ -770,7 +753,7 @@ namespace SerialPortController
             try
             {
                 //报告包引用变量
-                IDataFramePacket packet = null;
+                DistancePacket packet = null;
 
                 //线程循环
                 while (true)
@@ -785,7 +768,7 @@ namespace SerialPortController
                                 //如果报告队列中已经存在报告 则取出报告包进行处理
                                 if (0 != reportQueue.Count)
                                 {
-                                    packet = reportQueue.Dequeue();
+                                    packet = (DistancePacket)reportQueue.Dequeue();
                                 }
 
                                 //如果没有报告则等待报告(线程等待)
@@ -795,6 +778,13 @@ namespace SerialPortController
                                 }
                             }
                         }//end 等待接收线程的报告通知
+
+                        DistanceData recordData = GenerateRecordData(packet);
+
+                        if (recordData != null)
+                        {
+                            RaiseReportEvent(recordData);
+                        }
 
                         //处理报告包
                         //switch (packet.Type)
@@ -827,6 +817,37 @@ namespace SerialPortController
                 throw ode;
             }
         }
+        private DistanceData GenerateRecordData(DistancePacket packet)
+        {
+            if (null != packet)
+            {
+                try
+                {
+                    string[] dataFields = packet.StringData.Split('|');
+
+                    DistanceData distanceData = new DistanceData();
+                    distanceData.DataTime = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                    distanceData.Address = packet.Address;
+                    distanceData.Sign = dataFields[0].Substring(0, 1);
+                    distanceData.Distance = Convert.ToInt32(dataFields[0].Substring(1), 10);
+                    distanceData.Flameouted = dataFields[2].Contains("0");
+                    distanceData.Battery = Convert.ToInt32(dataFields[1], 10);
+
+                    return distanceData;
+                }
+
+                catch
+                {
+                    return null;
+                }
+            }
+
+            else
+            {
+                return null;
+            }
+        }
+
         #endregion Private SetAddress
     }
 }

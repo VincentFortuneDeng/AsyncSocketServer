@@ -9,7 +9,7 @@ namespace SerialPortController
 {
     public abstract class SenserController
     {
-        protected Dictionary<string, SerialController> comControllerDictionary;
+        protected Dictionary<string, SerialListener> m_listenerDictionary;
 
         protected ISenser currentSenser;
 
@@ -67,12 +67,12 @@ namespace SerialPortController
         /// 添加通讯控制器
         /// </summary>
         /// <param name="setting">设置</param>
-        protected abstract SerialController AddComController(string setting);
+        protected abstract SerialListener AddComController(string setting);
 
         /// <summary>
         /// 创建传感器列表
         /// </summary>
-        protected abstract void AddSenser(SerialController dadComController, string addressList);
+        protected abstract void AddSenser(SerialListener dadComController, string addressList);
 
         /// <summary>
         /// 输出线程
@@ -184,7 +184,7 @@ namespace SerialPortController
         protected void RegisterComEvent()
         {
 
-            foreach (SerialController comController in this.comControllerDictionary.Values)
+            foreach (SerialListener comController in this.m_listenerDictionary.Values)
             {
 
                 comController.ReportEvent += new EventHandler<EventArgs>(ComController_ReportEvent);
@@ -195,7 +195,7 @@ namespace SerialPortController
         protected void UnRegisterComEvent()
         {
 
-            foreach (SerialController comController in this.comControllerDictionary.Values)
+            foreach (SerialListener comController in this.m_listenerDictionary.Values)
             {
                 comController.ReportEvent -= new EventHandler<EventArgs>(ComController_ReportEvent);
             }
@@ -225,7 +225,7 @@ namespace SerialPortController
             {
                 this.workMode = workMode;
 
-                foreach (SerialController comController in this.comControllerDictionary.Values)
+                foreach (SerialListener comController in this.m_listenerDictionary.Values)
                 {
                     comController.ChangeWorkMode(workMode);
                 }
@@ -257,7 +257,7 @@ namespace SerialPortController
         {
             if (!this.run)
             {
-                foreach (SerialController comController in this.comControllerDictionary.Values)
+                foreach (SerialListener comController in this.m_listenerDictionary.Values)
                 {
                     comController.Start();
                 }
@@ -289,7 +289,7 @@ namespace SerialPortController
         {
             if (this.run)
             {
-                foreach (SerialController comController in this.comControllerDictionary.Values)
+                foreach (SerialListener comController in this.m_listenerDictionary.Values)
                 {
                     comController.Stop();
                 }
@@ -347,7 +347,7 @@ namespace SerialPortController
         {
             this.Stop();
 
-            foreach (SerialController comController in this.comControllerDictionary.Values)
+            foreach (SerialListener comController in this.m_listenerDictionary.Values)
             {
                 comController.Close();
             }
@@ -393,7 +393,7 @@ namespace SerialPortController
                 this.pollInterval = 1;
             }
 
-            this.comControllerDictionary = new Dictionary<string, SerialController>();
+            this.m_listenerDictionary = new Dictionary<string, SerialListener>();
 
             this.senserDictionary = new Dictionary<byte, ISenser>();
 
@@ -406,7 +406,7 @@ namespace SerialPortController
                 if (!string.IsNullOrEmpty(setting))
                 {
                     string[] comSettings = setting.Split(':');
-                    SerialController serialController = (SerialController)this.AddComController(comSettings[0]);
+                    SerialListener serialController = (SerialListener)this.AddComController(comSettings[0]);
 
                     this.AddSenser(serialController, comSettings[1]);
                 }

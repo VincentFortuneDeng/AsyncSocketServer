@@ -14,7 +14,7 @@ namespace SerialPortController
         /// <summary>
         /// 通讯控制器
         /// </summary>
-        protected SerialController comController;
+        protected SerialListener m_listener;
 
         protected DeviceWorkState workState;
 
@@ -34,7 +34,7 @@ namespace SerialPortController
 
         public bool ComOn
         {
-            get { return comController.IsOpen; }
+            get { return m_listener.IsOpen; }
         }
 
         public byte Address

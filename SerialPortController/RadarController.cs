@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace SerialPortController
 {
-    public class CollecterController : SenserController
+    public class RadarController : SenserController
     {
         /// <summary>
         /// 记录队列
@@ -89,7 +89,7 @@ namespace SerialPortController
 
 
 
-        public CollecterController(ReportWorkMode workMode, params int[] pollInterval)
+        public RadarController(ReportWorkMode workMode, params int[] pollInterval)
             : base(workMode, pollInterval)
         {
             //this.IinitSensers();
@@ -669,5 +669,18 @@ namespace SerialPortController
                 SplitRecordData(recordSpliteState.DeviceType, data, recordSpliteState.SingleRecordLength);
             }
         }*/
+    }
+
+    public class DataRecord
+    {
+        public string DateTime;
+
+        public byte[] Data;
+
+        public DataRecord(string dateTime, byte[] data)
+        {
+            this.DateTime = dateTime;
+            this.Data = data;
+        }
     }
 }

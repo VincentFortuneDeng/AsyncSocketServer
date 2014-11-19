@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace SerialPortController
 {
-    public class DataCollector : Senser
+    public class Radar : Senser
     {
         #region private const
         /// <summary>
@@ -82,13 +82,13 @@ namespace SerialPortController
         }
 
         /// <param name="address">地址</param>
-        public DataCollector(byte address, CollecterListener comController)
+        public Radar(byte address, RadarListener listener)
         {
             Reset();
 
-            this.m_listener = comController;
+            this.m_listener = listener;
 
-            ((CollecterListener)this.m_listener).OfflineEvent += new EventHandler<OnlineEventArgs>(comController_OfflineEvent);
+            ((RadarListener)this.m_listener).OfflineEvent += new EventHandler<OnlineEventArgs>(comController_OfflineEvent);
 
             this.address = address;
         }

@@ -51,15 +51,15 @@ namespace SerialPortController
 
         /// <param name="deviceAddress">地址</param>
         /// <param name="comController">通讯控制器</param>
-        public DistanceSenser(byte address, DADComController comController)
+        public DistanceSenser(byte address, DADListener comController)
         {
             Reset();
 
             this.address = address;
 
-            this.comController = comController;
+            this.m_listener = comController;
 
-            this.comController.OfflineEvent += new EventHandler<OnlineEventArgs>(comController_OfflineEvent);
+            this.m_listener.OfflineEvent += new EventHandler<OnlineEventArgs>(comController_OfflineEvent);
 
         }
 
@@ -159,7 +159,7 @@ namespace SerialPortController
         {
             byte type = 1;
 
-            return ((DADComController)this.comController).SendReturnBool(address, type,destAddress);
+            return ((DADListener)this.m_listener).SendReturnBool(address, type,destAddress);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace SerialPortController
         {
             byte type = 4;
 
-            return ((DADComController)this.comController).SendReturnBool(address, type, ((byte)angle).ToString());
+            return ((DADListener)this.m_listener).SendReturnBool(address, type, ((byte)angle).ToString());
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace SerialPortController
         {
             byte type = 2;
 
-            return ((DADComController)this.comController).SendReturnBool(address, type, ((byte)workMode).ToString());
+            return ((DADListener)this.m_listener).SendReturnBool(address, type, ((byte)workMode).ToString());
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace SerialPortController
         {
             byte type = 3;
 
-            return ((DADComController)this.comController).SendReturnBool(address, type, frequency);
+            return ((DADListener)this.m_listener).SendReturnBool(address, type, frequency);
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace SerialPortController
         {
             byte type = 0;
 
-            bool online = ((DADComController)this.comController).SendReturnBool(address, type, "");
+            bool online = ((DADListener)this.m_listener).SendReturnBool(address, type, "");
 
             //this.workState = online ? DeviceWorkState.OnWork : DeviceWorkState.Fault;
 
@@ -258,7 +258,7 @@ namespace SerialPortController
         public DistanceData ReadRealTimeRecord()
         {
             byte type = 0;
-            return ((DADComController)this.comController).SendReturnData(this.address, type, "");
+            return ((DADListener)this.m_listener).SendReturnData(this.address, type, "");
         }
 
         /// <summary>

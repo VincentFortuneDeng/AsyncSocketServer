@@ -216,13 +216,13 @@ namespace SerialPortController
         /// <summary>
         /// 创建传感器列表
         /// </summary>
-        protected override void AddSenser(SerialController dadComController, string addressList)
+        protected override void AddSenser(SerialListener dadComController, string addressList)
         {
             string[] addresses = addressList.Split(',');
             foreach (string address in addresses)
             {
                 byte byteAddress = Convert.ToByte(address, 10);
-                DistanceSenser distanceSenser = new DistanceSenser(byteAddress, (DADComController)dadComController);
+                DistanceSenser distanceSenser = new DistanceSenser(byteAddress, (DADListener)dadComController);
                 distanceSenser.WorkStateEvent += new EventHandler<WorkStateEventArgs>(Senser_WorkStateEvent);
                 try
                 {
@@ -317,15 +317,15 @@ namespace SerialPortController
         /// 添加通讯控制器
         /// </summary>
         /// <param name="setting">设置</param>
-        protected override SerialController AddComController(string setting)
+        protected override SerialListener AddComController(string setting)
         {
             string[] comSettings = setting.Split(',');
-            DADComController dadComController = new DADComController(comSettings[0],
+            DADListener dadComController = new DADListener(comSettings[0],
                 int.Parse(comSettings[1]), this.workMode, true);
 
             dadComController.ComOnEvent += new EventHandler<ComOnEventArgs>(ComController_ComOnEvent);
 
-            this.comControllerDictionary.Add(comSettings[0], dadComController);
+            this.m_listenerDictionary.Add(comSettings[0], dadComController);
 
             return dadComController;
         }

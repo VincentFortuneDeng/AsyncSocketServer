@@ -45,15 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollecterComController.cs" />
+    <Compile Include="RadarController.cs" />
+    <Compile Include="Radar.cs" />
+    <Compile Include="RadarListener.cs" />
+    <Compile Include="CollecterListener.cs" />
     <Compile Include="CollecterController.cs" />
-    <Compile Include="DADComController.cs" />
+    <Compile Include="DADListener.cs" />
     <Compile Include="DADController.cs" />
     <Compile Include="DataCollector.cs" />
     <Compile Include="DistanceData.cs" />
     <Compile Include="DistanceSenser.cs" />
     <Compile Include="ISenser.cs" />
-    <Compile Include="ISerialController.cs" />
+    <Compile Include="ISerialListener.cs" />
     <Compile Include="OnlineEventArgs.cs" />
     <Compile Include="PacketCommandType.cs" />
     <Compile Include="PollModeType.cs" />
@@ -67,7 +70,7 @@
     <Compile Include="Senser.cs" />
     <Compile Include="SenserController.cs" />
     <Compile Include="SenserWorkState.cs" />
-    <Compile Include="SerialController.cs" />
+    <Compile Include="SerialListener.cs" />
     <Compile Include="SerializableDictionary.cs" />
     <Compile Include="SignType.cs" />
     <Compile Include="WorkStateEventArgs.cs" />
