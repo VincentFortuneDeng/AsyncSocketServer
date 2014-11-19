@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class RtuPacket:IDataFramePacket
     {
@@ -55,7 +55,7 @@ namespace SerialPortController
             }
         }
 
-        public SerialPortController.DataPacketType PacketType
+        public SerialPortListener.DataPacketType PacketType
         {
             get
             {

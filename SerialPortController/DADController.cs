@@ -7,7 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using SenserModels.Entity;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class DADController : SenserController
     {
@@ -369,9 +369,9 @@ namespace SerialPortController
 
         protected override void LoadSetting()
         {
-            this.baseSettings = SerialPortController.Properties.Settings.Default.BaseSetting;
+            this.baseSettings = SerialPortListener.Properties.Settings.Default.BaseSetting;
             this.addressMapping = new Dictionary<byte, byte>();
-            string[] addressMappingSetting = SerialPortController.Properties.Settings.Default.AddressMapping.Split(';');
+            string[] addressMappingSetting = SerialPortListener.Properties.Settings.Default.AddressMapping.Split(';');
             foreach (string ams in addressMappingSetting)
             {
                 if (!string.IsNullOrEmpty(ams))
@@ -380,7 +380,7 @@ namespace SerialPortController
                     this.addressMapping.Add(Convert.ToByte(mapping[0]), Convert.ToByte(mapping[1]));
                 }
             }
-            this.mapping = SerialPortController.Properties.Settings.Default.AddressMapping;
+            this.mapping = SerialPortListener.Properties.Settings.Default.AddressMapping;
         }
 
         /// <summary>

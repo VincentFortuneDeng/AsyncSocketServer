@@ -7,9 +7,9 @@ using SenserModels.Entity;
 using SenserModels.Common;
 using System.Windows.Forms;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
-    public class Radar : Senser
+    public class RadarReceiver : Senser
     {
         #region private const
         /// <summary>
@@ -82,7 +82,7 @@ namespace SerialPortController
         }
 
         /// <param name="address">地址</param>
-        public Radar(byte address, RadarListener listener)
+        public RadarReceiver(byte address, RadarListener listener)
         {
             Reset();
 

@@ -6,7 +6,7 @@ using System.IO.Ports;
 using System.IO;
 using System.Diagnostics;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class DADListener : SerialListener
     {

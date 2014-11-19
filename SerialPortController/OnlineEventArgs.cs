@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class OnlineEventArgs : EventArgs
     {

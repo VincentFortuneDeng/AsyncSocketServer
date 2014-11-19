@@ -7,7 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class RadarListener : SerialListener
     {

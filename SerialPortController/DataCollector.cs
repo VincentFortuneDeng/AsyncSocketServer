@@ -7,7 +7,7 @@ using SenserModels.Entity;
 using SenserModels.Common;
 using System.Windows.Forms;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class DataCollector : Senser
     {

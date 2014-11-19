@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public interface ISenser
     {
-        event System.EventHandler<SerialPortController.WorkStateEventArgs> WorkStateEvent;
+        event System.EventHandler<SerialPortListener.WorkStateEventArgs> WorkStateEvent;
     
-        SerialPortController.DeviceWorkState WorkState
+        SerialPortListener.DeviceWorkState WorkState
         {
             get;
             set;

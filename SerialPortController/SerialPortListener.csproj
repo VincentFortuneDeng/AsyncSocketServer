@@ -8,8 +8,8 @@
     <ProjectGuid>{DD941C52-935B-4657-89B5-54192DBABCD3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SerialPortController</RootNamespace>
-    <AssemblyName>SerialPortController</AssemblyName>
+    <RootNamespace>SerialPortListener</RootNamespace>
+    <AssemblyName>SerialPortListener</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RadarController.cs" />
-    <Compile Include="Radar.cs" />
+    <Compile Include="RadarReceiver.cs" />
     <Compile Include="RadarListener.cs" />
     <Compile Include="CollecterListener.cs" />
     <Compile Include="CollecterController.cs" />

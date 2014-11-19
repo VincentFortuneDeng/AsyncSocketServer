@@ -4,7 +4,7 @@ using System.Text;
 using SenserModels;
 using SenserModels.Entity;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class RecordSpliteState
     {

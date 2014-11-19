@@ -10,7 +10,7 @@ using SenserModels.Config;
 using SenserModels.Entity;
 using System.Windows.Forms;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class RadarController : SenserController
     {
@@ -506,7 +506,7 @@ namespace SerialPortController
 
         protected override void LoadSetting()
         {
-            this.baseSettings = SerialPortController.Properties.Settings.Default.BaseSetting;
+            this.baseSettings = SerialPortListener.Properties.Settings.Default.BaseSetting;
             this.initSettings = Configs<BaseSettings>.GetConfig();
             //this.nodeID = this.initSettings.MotorID;
         }

@@ -6,7 +6,7 @@ using System.Threading;
 using System.IO;
 using System.Windows.Forms;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     /// <summary>
     /// 设备工作模式
@@ -68,7 +68,7 @@ namespace SerialPortController
 
         bool ChangeSetting(string portName, int baudRate, ReportWorkMode reportMode);
 
-        bool ChangeWorkMode(SerialPortController.ReportWorkMode workMode);
+        bool ChangeWorkMode(SerialPortListener.ReportWorkMode workMode);
     }
 
     

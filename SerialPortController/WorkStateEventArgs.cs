@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using SenserModels;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class WorkStateEventArgs : EventArgs
     {

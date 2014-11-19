@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPServer.Library", "TCPSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPServer.Interface", "TCPServer.Interface\TCPServer.Interface.csproj", "{73AD1D52-450C-4608-BE9C-8B820CCB8583}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialPortController", "SerialPortController\SerialPortController.csproj", "{DD941C52-935B-4657-89B5-54192DBABCD3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialPortListener", "SerialPortController\SerialPortListener.csproj", "{DD941C52-935B-4657-89B5-54192DBABCD3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenserModels", "SenserModels\SenserModels.csproj", "{CFAB1CD2-A05C-4303-BF4F-1CD5F40E2772}"
 EndProject

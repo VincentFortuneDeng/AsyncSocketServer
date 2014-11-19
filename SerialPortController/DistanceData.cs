@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public class DistanceData : EventArgs
     {

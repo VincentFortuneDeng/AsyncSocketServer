@@ -5,7 +5,7 @@ using System.Threading;
 using SenserModels;
 using SenserModels.Entity;
 
-namespace SerialPortController
+namespace SerialPortListener
 {
     public abstract class SenserController
     {
