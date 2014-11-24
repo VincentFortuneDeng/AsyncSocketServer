@@ -11,7 +11,7 @@ namespace SerialPortListener
     {
         #region protected const
         //protected int waitTime;
-        protected const int READ_BUFFER_SIZE = 128;
+        protected const int READ_BUFFER_SIZE = 1024;
         protected const int MAX_DATA_LENGTH = 60;
         protected const int MAX_RESPONSE_TIME = 300;
         //protected const int LINE_LENGTH = 16;
@@ -46,7 +46,7 @@ namespace SerialPortListener
         protected Boolean disposed = false;
         protected ReportWorkMode reportMode;
         // comPort
-        protected SerialPort com;
+        protected SerialPort comPort;
         #endregion protected variables
 
         public bool TimedOut
@@ -76,7 +76,7 @@ namespace SerialPortListener
 
         public bool IsOpen
         {
-            get { return this.com.IsOpen; }
+            get { return this.comPort.IsOpen; }
         }
 
         public void Close()
@@ -108,19 +108,19 @@ namespace SerialPortListener
             : this()
         {
             // comPort
-            com = new SerialPort(portName, baudRate);
-            com.Encoding = Encoding.ASCII;
-            com.ReadTimeout = READ_WRITE_TIMEOUT;
-            com.WriteTimeout = READ_WRITE_TIMEOUT;
-            com.DiscardNull = discardNull;
-            this.portName = com.PortName;
+            comPort = new SerialPort(portName, baudRate);
+            comPort.Encoding = Encoding.ASCII;
+            comPort.ReadTimeout = READ_WRITE_TIMEOUT;
+            comPort.WriteTimeout = READ_WRITE_TIMEOUT;
+            comPort.DiscardNull = discardNull;
+            this.portName = comPort.PortName;
 
             //MessageBox.Show(string.Format("ProtName{0},BaudRate{1}",com.PortName, com.BaudRate));
             this.Start();
 
             //this.waitTime = waitTime;
             this.reportMode = reportMode;
-            packetRcvBuffer = new byte[MAX_PACKET_LENGTH];
+            //packetRcvBuffer = new byte[MAX_PACKET_LENGTH];
             packetXMitBuffer = new byte[MAX_PACKET_LENGTH];
             //fan1Power = fan2Power = fan3Power = fan4Power = (byte)0;
             reportQueue = new Queue<IDataFramePacket>();
@@ -137,10 +137,10 @@ namespace SerialPortListener
             receiveThread.IsBackground = true;
             this.receiveThread.Priority = ThreadPriority.Lowest;
             receiveThread.Start();
-            if(this.com.IsOpen) {
+            /*if(this.comPort.IsOpen) {
                 //MessageBox.Show("com.IsOpen");
                 this.workThreadRun = true;
-            }
+            }*/
         }
 
         public virtual IDataFramePacket Send(UInt32 address, byte type, byte dataLength, byte[] data)
@@ -165,7 +165,7 @@ namespace SerialPortListener
             lock(responseSignal) {
                 responsePacket = null;//清空响应包
                 // comPort
-                com.Write(packetXMitBuffer, 0, dataLength + 4);
+                comPort.Write(packetXMitBuffer, 0, dataLength + 4);
                 if(Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
                 {
                     return responsePacket;
@@ -193,9 +193,9 @@ namespace SerialPortListener
 
         protected virtual void Dispose(bool disposing)
         {
-            if(!disposed && disposing && com != null && com.IsOpen) {
+            if(!disposed && disposing && comPort != null && comPort.IsOpen) {
                 //Reset();
-                com.Close();
+                comPort.Close();
                 CloseThreads();
 
                 // Keep us from calling resetting or closing multiple times
@@ -339,7 +339,7 @@ namespace SerialPortListener
         protected virtual void RaiseComOnEvent(bool comOn)
         {
             if(this.ComOnEvent != null) {
-                this.ComOnEvent(this, new ComOnEventArgs(this.com.PortName, comOn));
+                this.ComOnEvent(this, new ComOnEventArgs(this.comPort.PortName, comOn));
             }
         }
 
@@ -355,7 +355,7 @@ namespace SerialPortListener
             workThreadRun = false;
             //MessageBox.Show("Stop");
             try {
-                com.Close();
+                comPort.Close();
                 RaiseComOnEvent(false);
 
             } catch(Exception) {
@@ -368,7 +368,7 @@ namespace SerialPortListener
             //MessageBox.Show(string.Format("ProtName{0},BaudRate{1}", com.BaudRate));
             try {
 
-                com.Open();
+                comPort.Open();
 
                 //if (this.com.IsOpen)
                 //{
@@ -386,7 +386,7 @@ namespace SerialPortListener
 
         protected bool workThreadRun;
 
-        protected bool eventThreadRun;
+        protected bool eventThreadRun = false;
 
         /// <summary>
         /// 响应事件
@@ -401,8 +401,8 @@ namespace SerialPortListener
         public bool ChangeSetting(string portName, int baudRate, ReportWorkMode reportMode)
         {
             this.Stop();
-            this.com.PortName = portName;
-            this.com.BaudRate = baudRate;
+            this.comPort.PortName = portName;
+            this.comPort.BaudRate = baudRate;
             if(this.reportMode != reportMode) {
                 this.reportMode = reportMode;
                 switch(this.reportMode) {
@@ -502,8 +502,7 @@ namespace SerialPortListener
             sb.Append("Type: " + Convert.ToString(type, 16) + "\n");
             sb.Append("DataLength: " + Convert.ToString(dataLength, 16) + "\n");
             sb.Append("Data: ");
-            for (int i = 0; i < dataLength; i++)
-            {
+            for(int i = 0; i < dataLength; i++) {
                 sb.Append(Convert.ToString(data[i], 16) + ", ");
             }
 
@@ -524,8 +523,7 @@ namespace SerialPortListener
         {
             get
             {
-                switch (type & 0xf0)
-                {
+                switch(type & 0xf0) {
                     case NORMAL_RESPONSE:
                         return DataPacketType.NORMAL_RESPONSE;
 
@@ -665,8 +663,7 @@ namespace SerialPortListener
         {
             get
             {
-                switch (type & 0xf0)
-                {
+                switch(type & 0xf0) {
                     case NORMAL_RESPONSE:
                         return DataPacketType.NORMAL_RESPONSE;
 
@@ -813,8 +810,7 @@ namespace SerialPortListener
             byte crcHi = 0xff;  // high crc byte initialized
             byte crcLo = 0xff;  // low crc byte initialized 
 
-            for (int i = 0; i < dataLength; i++)
-            {
+            for(int i = 0; i < dataLength; i++) {
                 ushort crcIndex = (ushort)(crcHi ^ data[i]); // calculate the crc lookup index
 
                 crcHi = (byte)(crcLo ^ crcLookupTableHi[crcIndex]);
@@ -838,8 +834,7 @@ namespace SerialPortListener
             byte crcHi = 0xff;  // high crc byte initialized
             byte crcLo = 0xff;  // low crc byte initialized 
 
-            for (int i = 0; i < length; i++)
-            {
+            for(int i = 0; i < length; i++) {
                 ushort crcIndex = (ushort)(crcHi ^ data[(startIndex + i) % data.Length]); // calculate the crc lookup index
 
                 crcHi = (byte)(crcLo ^ crcLookupTableHi[crcIndex]);
@@ -900,8 +895,7 @@ namespace SerialPortListener
             ushort newCrc;
 
             newCrc = seed;
-            for (int i = 0; i < dataLength; i++)
-            {
+            for(int i = 0; i < dataLength; i++) {
                 newCrc = (ushort)((newCrc >> 8) ^ crcLookupTable[(newCrc ^ data[i]) & 0xff]);
             }
 
@@ -913,8 +907,7 @@ namespace SerialPortListener
             ushort newCrc;
 
             newCrc = seed;
-            for (int i = 0; i < length; i++)
-            {
+            for(int i = 0; i < length; i++) {
                 newCrc = (ushort)((newCrc >> 8) ^ crcLookupTable[(newCrc ^ data[(startIndex + i) % data.Length]) & 0xff]);
             }
 

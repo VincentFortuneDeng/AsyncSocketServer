@@ -14,6 +14,10 @@ namespace SerialPortListener
         #region private const
 
         //private new const int MAX_PACKET_LENGTH = MAX_DATA_LENGTH + 4;
+        private new const int MAX_DATA_LENGTH = 60;
+        private new const int MAX_PACKET_LENGTH = MAX_DATA_LENGTH + 5;
+        private const byte FRAME_HEAD = 0x7E;
+        private const byte FRAME_TAIL = 0x7E;
 
         #endregion private const
 
@@ -30,13 +34,44 @@ namespace SerialPortListener
 
         #region  Constructor
         public RadarListener(string portName, int baudRate, ReportWorkMode reportMode, bool discardNull)
-            : base(portName, baudRate, reportMode, discardNull)
+        //: base(portName, baudRate, reportMode, discardNull)
         {
+            // comPort
+            comPort = new SerialPort(portName, baudRate);
+            comPort.Encoding = Encoding.ASCII;
+            comPort.ReadTimeout = READ_WRITE_TIMEOUT;
+            comPort.WriteTimeout = READ_WRITE_TIMEOUT;
+            comPort.DiscardNull = discardNull;
+            this.portName = comPort.PortName;
 
+            //MessageBox.Show(string.Format("ProtName{0},BaudRate{1}",com.PortName, com.BaudRate));
+            this.Start();
+
+            //this.waitTime = waitTime;
+            this.reportMode = reportMode;
+            //packetRcvBuffer = new byte[MAX_PACKET_LENGTH];
+            packetXMitBuffer = new byte[MAX_PACKET_LENGTH];
+            //fan1Power = fan2Power = fan3Power = fan4Power = (byte)0;
+            reportQueue = new Queue<IDataFramePacket>();
+            responseSignal = new Object();
+            reportSignal = new Object();
+            eventThread = new Thread(new ThreadStart(ReportEventHandler));
+            eventThread.IsBackground = true;
+            eventThread.Start();
+            if(ReportWorkMode.Initiative == this.reportMode) {
+                this.eventThreadRun = true;
+            }
+
+            receiveThread = new Thread(new ThreadStart(Receive));
+            receiveThread.IsBackground = true;
+            this.receiveThread.Priority = ThreadPriority.Lowest;
+            receiveThread.Start();
+            /*if(this.comPort.IsOpen) {
+                //MessageBox.Show("com.IsOpen");
+                this.workThreadRun = true;
+            }*/
         }
         #endregion  constructor
-
-
 
         #region Public SetAddress
         public override byte[] Ping(UInt32 address, byte[] data)
@@ -164,7 +199,7 @@ namespace SerialPortListener
         //发送数据后返回响应数据
         public override byte[] SendReturnData(UInt32 address, byte type, byte dataLength, byte[] data)
         {
-            RtuPacket packet = (RtuPacket)Send(address, type, dataLength, data);
+            RadarPacket packet = (RadarPacket)Send(address, type, dataLength, data);
 
             if(null != packet) {
                 return packet.Data;
@@ -176,7 +211,7 @@ namespace SerialPortListener
         //发送数据返回布尔值
         public override bool SendReturnBool(UInt32 address, byte type, byte dataLength, byte[] data)
         {
-            RtuPacket packet = (RtuPacket)Send(address, type, dataLength, data);
+            RadarPacket packet = (RadarPacket)Send(address, type, dataLength, data);
 
             if(null != packet) {
                 return (type == (packet.Type & 0x1f)) && (DataPacketType.NORMAL_RESPONSE ==
@@ -210,8 +245,8 @@ namespace SerialPortListener
                     outputString += " " + Convert.ToString(bt, 16);
                 }*/
                 //Trace.WriteLine("Recevie " + outputString);
-                Console.WriteLine("Recevie:" + "CRC ERROR!(CRC 错误): Calculated(计算值) CRC={0} Actual(实际值) CRC={1}",
-                    Convert.ToString(calculatedCRC, 16), Convert.ToString(packet.CRC, 16));
+                Debug.WriteLine(string.Format("Recevie:" + "CRC ERROR!(CRC 错误): Calculated(计算值) CRC={0} Actual(实际值) CRC={1}",
+                    Convert.ToString(calculatedCRC, 16), Convert.ToString(packet.CRC, 16)));
 
                 return false;
             } else //if (calculatedCRC == packet.CRC)
@@ -306,9 +341,9 @@ namespace SerialPortListener
         //释放系统资源
         protected override void Dispose(bool disposing)
         {
-            if(!disposed && disposing && com != null && com.IsOpen) {
+            if(!disposed && disposing && comPort != null && comPort.IsOpen) {
                 Reset();
-                com.Close();
+                comPort.Close();
                 CloseThreads();
 
                 // Keep us from calling resetting or closing multiple times
@@ -367,7 +402,7 @@ namespace SerialPortListener
                     break;
             }
 
-            return new RtuPacket((buffer[startIndex]), type, dataLength, data, crc);
+            return new RadarPacket((buffer[startIndex]), type, dataLength, data, crc);
         }
         #endregion REVIEW
 
@@ -411,7 +446,7 @@ namespace SerialPortListener
                         }*/
 
                         //Trace.WriteLine("send8 " + outputstr);
-                        com.Write(packetXMitBuffer, 0, 8);
+                        comPort.Write(packetXMitBuffer, 0, 8);
                         //MessageBox.Show(outputstr);
                         //DateTime sendTime = DateTime.Now;
                         if(Monitor.Wait(responseSignal, (int)(MAX_RESPONSE_TIME + (dataLength + 5) * 8L / (packetXMitBuffer[0] == 3 ? 19200 : 4800) * 1000)))//发送后等待响应
@@ -454,7 +489,7 @@ namespace SerialPortListener
                             outputstr += Convert.ToString(packetXMitBuffer[i], 16) + " ";
                         }*/
                         //Trace.WriteLine((dataLength + 9) + "send " + outputstr);
-                        com.Write(packetXMitBuffer, 0, dataLength + 9);
+                        comPort.Write(packetXMitBuffer, 0, dataLength + 9);
 
                         //MessageBox.Show(outputstr);
                         //DateTime sendTime = DateTime.Now;
@@ -494,7 +529,7 @@ namespace SerialPortListener
                             outputstr += Convert.ToString(packetXMitBuffer[i], 16) + " ";
                         }*/
                         //Trace.WriteLine("send8 " + outputstr);
-                        com.Write(packetXMitBuffer, 0, 8);
+                        comPort.Write(packetXMitBuffer, 0, 8);
 
                         //MessageBox.Show(outputstr);
                         //DateTime sendTime = DateTime.Now;
@@ -617,13 +652,15 @@ namespace SerialPortListener
         protected override void Receive()
         {
             try {
-                byte[] receiveBuffer = new byte[1024];//接收缓冲区
+                byte[] receiveBuffer = new byte[READ_BUFFER_SIZE];//接收缓冲区
                 int bytesRead = 0;//已读字节
                 int bufferIndex = 0;//缓冲区索引
                 int startPacketIndex = 0;//包开始索引
+                int endPacketIndex = -1;//包结束索引
                 int expectedPacketLength = -1;//期望包长度
-                bool expectedPacketLengthIsSet = false;//期望包长度是否设置
+                //bool expectedPacketLengthIsSet = false;//期望包长度是否设置
                 int numBytesToRead = receiveBuffer.Length;//要读取的字节数量
+                bool packetFrameHeaderIsSet = false;//包开始符号是否设置
 
                 //消息循环
                 while(true) {
@@ -631,7 +668,8 @@ namespace SerialPortListener
                     if(workThreadRun) {
                         //MessageBox.Show(string.Format("expectedPacketLengthIsSet{0},bytesRead{1}", expectedPacketLengthIsSet, bytesRead));
                         //因为该Demo协议 包长度在第二位 所以在期望包长度没有设置的情况下 bytesRead<=1也是继续读取的条件
-                        if(expectedPacketLengthIsSet || 3 > bytesRead) {
+                        //if(expectedPacketLengthIsSet || 1 > bytesRead) {
+                        if(packetFrameHeaderIsSet || 1 > bytesRead) {
                             //If the expectedPacketLength has been or no bytes have been read
                             //翻译:如果预期包长度已经设置或者没有字节已经被读取
                             //This covers the case that more then 1 entire packet has been read in at a time
@@ -640,7 +678,7 @@ namespace SerialPortListener
 
                             try {
                                 //MessageBox.Show(bytesRead.ToString());
-                                bytesRead += com.Read(receiveBuffer, bufferIndex, numBytesToRead);//读取字节数据
+                                bytesRead += comPort.Read(receiveBuffer, bufferIndex, numBytesToRead);//读取字节数据
                                 //Trace.WriteLine("bytesRead" + bytesRead);
                                 bufferIndex = startPacketIndex + bytesRead;//修改缓冲区下一位置指针
                                 //MessageBox.Show(bytesRead.ToString());
@@ -649,54 +687,53 @@ namespace SerialPortListener
                             }
                         }
 
-                        if(3 <= bytesRead)//长度超过1说明期望包长度字节应该出现(在第二位)
+                        if(1 <= bytesRead)//长度超过1说明期望包长度字节应该出现(在第二位)
                         {
                             //The buffer has the dataLength for the packet
                             //翻译:缓冲区已经存在包数据长度
-                            if(!expectedPacketLengthIsSet)//设置包长度
+                            if(!packetFrameHeaderIsSet)//帧头未发现
                             {
                                 //If the expectedPacketLength has not been set for this packet
                                 //如果期望包长度没有设置
-                                int lenData = (receiveBuffer[(1 + startPacketIndex) % receiveBuffer.Length] == READ_VAULES ?
-                                    receiveBuffer[(2 + startPacketIndex) % receiveBuffer.Length] + 5 : 8);
-                                byte packetType = receiveBuffer[(1 + startPacketIndex) % receiveBuffer.Length];
-                                byte address = receiveBuffer[startPacketIndex % receiveBuffer.Length];
-                                //加载地址集合、包类型集合
-                                if((packetType == READ_VAULES || packetType == WRITE_MULTI_VALUE || packetType == WRITE_SINGLE_VALUE) &&
-                                    (address == 1 || address == 2 || address == 3 || address == 0) && lenData <= MAX_PACKET_LENGTH) {
-                                    expectedPacketLength = lenData;//4字节为附加字节 CRC2 命令1 长度1
-                                    expectedPacketLengthIsSet = true;//长度已经设置
-                                } else {
-                                    expectedPacketLengthIsSet = false;//期望包长度重置(已经收集到一个包数据)
-                                    //The buffer contains only the bytes for this packet
-                                    //翻译:缓冲区包含仅一个包的字节数据
-                                    bytesRead = 0;//重置接收字节数据计数器
-                                    bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
-                                }
-                            }
 
-                            if(bytesRead >= expectedPacketLength)//已经有至少一个包长度的字节数据
-                            {
-                                //The buffer has atleast as many bytes for this packet
-                                //翻译:缓冲区已经存在至少一个包或者多于一个包的字节数据
-                                bool added = AddPacket(receiveBuffer, startPacketIndex);
-                                //数据添加到包
-                                expectedPacketLengthIsSet = false;//期望包长度重置(已经收集到一个包数据)
-                                if(bytesRead == expectedPacketLength || !added)//正好收集到一个包数据
-                                {
-                                    //The buffer contains only the bytes for this packet
-                                    //翻译:缓冲区包含仅一个包的字节数据
-                                    bytesRead = 0;//重置接收字节数据计数器
+                                startPacketIndex = Array.IndexOf<byte>(receiveBuffer, FRAME_HEAD, startPacketIndex, bytesRead);//需要修改循环缓冲区算法
+                                packetFrameHeaderIsSet = startPacketIndex != -1;//长度已经设置
+                                if(!packetFrameHeaderIsSet) {
                                     bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                    bytesRead = 0;//重置接收字节数据计数器
                                 }
-                                    //缓冲区字节数据多于1个包的字节数据
-                                else {
-                                    //The buffer also has bytes for the next packet
-                                    //翻译:缓冲区包含下一数据包的字节数据
-                                    startPacketIndex += expectedPacketLength;//下一包的开始位置
-                                    startPacketIndex %= receiveBuffer.Length;//缓冲区溢出循环
-                                    bytesRead -= expectedPacketLength;//记录下下一包以读取数据字节数
-                                    bufferIndex = startPacketIndex + bytesRead;//缓冲区位置计数
+                            } else {
+                                endPacketIndex = Array.IndexOf<byte>(receiveBuffer, FRAME_TAIL, startPacketIndex + 1, bytesRead - 1);//需要修改循环缓冲区算法
+
+                                //已经有至少一个包长度的字节数据
+                                if(endPacketIndex != -1) {
+                                    //The buffer has atleast as many bytes for this packet
+                                    //翻译:缓冲区已经存在至少一个包或者多于一个包的字节数据
+                                    
+
+                                    bool added = AddPacket(receiveBuffer, startPacketIndex);
+                                    //数据添加到包
+                                    packetFrameHeaderIsSet = false;//期望包长度重置(已经收集到一个包数据)
+
+                                    //TODO处理剩余异常数据
+
+                                    //TODO删除已处理数据
+                                    //正好收集到一个包数据
+                                    if(bytesRead == expectedPacketLength || !added) {
+                                        //The buffer contains only the bytes for this packet
+                                        //翻译:缓冲区包含仅一个包的字节数据
+                                        bytesRead = 0;//重置接收字节数据计数器
+                                        bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                    } else {
+                                        //缓冲区字节数据多于1个包的字节数据
+
+                                        //The buffer also has bytes for the next packet
+                                        //翻译:缓冲区包含下一数据包的字节数据
+                                        startPacketIndex += expectedPacketLength;//下一包的开始位置
+                                        startPacketIndex %= receiveBuffer.Length;//缓冲区溢出循环
+                                        bytesRead -= expectedPacketLength;//记录下下一包以读取数据字节数
+                                        bufferIndex = startPacketIndex + bytesRead;//缓冲区位置计数
+                                    }
                                 }
                             }
                         }

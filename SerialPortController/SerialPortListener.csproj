@@ -45,7 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crc16.cs" />
+    <Compile Include="Crc16Ccitt.cs" />
+    <Compile Include="Crc32ModeS.cs" />
     <Compile Include="RadarController.cs" />
+    <Compile Include="RadarPacket.cs" />
     <Compile Include="RadarReceiver.cs" />
     <Compile Include="RadarListener.cs" />
     <Compile Include="CollecterListener.cs" />

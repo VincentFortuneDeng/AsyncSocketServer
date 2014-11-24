@@ -14,6 +14,9 @@ namespace SerialPortListener
 
         //private new const int MAX_PACKET_LENGTH = MAX_DATA_LENGTH + 4;
 
+        private const char FRAME_HEAD = '$';
+        private const char FRAME_TAIL = '@';
+
         #endregion private const
 
         #region private variables
@@ -42,8 +45,7 @@ namespace SerialPortListener
         {
             byte type = 0;
 
-            if (16 < data.Length)
-            {
+            if(16 < data.Length) {
                 throw new ArgumentException("data", "must have 16 items or less");
             }
 
@@ -165,12 +167,9 @@ namespace SerialPortListener
         {
             IDataFramePacket packet = Send(address, type, dataLength, data);
 
-            if (null != packet)
-            {
+            if(null != packet) {
                 return Encoding.ASCII.GetBytes(packet.GetDataStrings()[0]);
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
@@ -180,14 +179,11 @@ namespace SerialPortListener
         {
             DistancePacket packet = (DistancePacket)Send(address, type, data);
 
-            if (null != packet)
-            {
+            if(null != packet) {
                 DistanceData recordData = GenerateRecordData(packet);
 
                 return recordData;
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
@@ -196,15 +192,11 @@ namespace SerialPortListener
         {
             DistancePacket packet = (DistancePacket)Send(address, type, data);
 
-            if (null != packet)
-            {
+            if(null != packet) {
                 return (type == packet.Type % 0xA
                     && DataPacketType.NORMAL_RESPONSE == responsePacket.PacketType
                     && packet.BoolData && address == packet.Address);
-            }
-
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -214,13 +206,9 @@ namespace SerialPortListener
         {
             IDataFramePacket packet = Send(address, type, dataLength, data);
 
-            if (null != packet)
-            {
+            if(null != packet) {
                 return (type == (packet.Type & 0x0f) && DataPacketType.NORMAL_RESPONSE == responsePacket.PacketType);
-            }
-
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -233,8 +221,7 @@ namespace SerialPortListener
             //ushort calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
             //if (calculatedCRC == packet.CRC)
             //{
-            switch (packet.PacketType)
-            {
+            switch(packet.PacketType) {
                 case DataPacketType.NORMAL_RESPONSE://正常响应包
                     AddResponsePacket(packet);//添加响应包 并通知发送线程
                     break;
@@ -275,8 +262,7 @@ namespace SerialPortListener
 
             ushort calculatedCRC = CRCGenerator.GenerateCRC(buffer, startIndex, packet.DataLength + 2, CRC_SEED);//重新计算CRC
 
-            switch (packet.PacketType)
-            {
+            switch(packet.PacketType) {
                 case DataPacketType.NORMAL_RESPONSE://正常响应包
                     AddResponsePacket(packet);//添加响应包 并通知发送线程
                     break;
@@ -375,10 +361,9 @@ namespace SerialPortListener
         //释放系统资源
         protected override void Dispose(bool disposing)
         {
-            if (!disposed && disposing && com != null && com.IsOpen)
-            {
+            if(!disposed && disposing && comPort != null && comPort.IsOpen) {
                 Reset();
-                com.Close();
+                comPort.Close();
                 CloseThreads();
 
                 // Keep us from calling resetting or closing multiple times
@@ -399,17 +384,12 @@ namespace SerialPortListener
             byte type = Convert.ToByte(packetFields[0], 16);
 
 
-            if (packetFields.Length == 3)
-            {
+            if(packetFields.Length == 3) {
                 bool boolData = packetFields[2] == "1" ? true : false;
 
                 return new DistancePacket(address, type, boolData);
-            }
-
-            else
-            {
-                if (this.reportMode == ReportWorkMode.Initiative)
-                {
+            } else {
+                if(this.reportMode == ReportWorkMode.Initiative) {
                     type |= 0xf0;
                 }
 
@@ -455,8 +435,7 @@ namespace SerialPortListener
         {
             string stringPacketXMitBuffer = FRAME_HEAD + Convert.ToString(type, 10);
             stringPacketXMitBuffer += SEPARATOR + Convert.ToString(address, 10);
-            if (!string.IsNullOrEmpty(data))
-            {
+            if(!string.IsNullOrEmpty(data)) {
                 stringPacketXMitBuffer += SEPARATOR + data;
             }
             stringPacketXMitBuffer += FRAME_TAIL;
@@ -465,7 +444,7 @@ namespace SerialPortListener
             //    sw.WriteLine(stringPacketXMitBuffer);
             //    sw.Close();
             //}
-            
+
             //ushort crc;
             /*
             if ((null == data && dataLength != 0) || dataLength > data.Length)
@@ -485,16 +464,15 @@ namespace SerialPortListener
             //packetXMitBuffer[2 + dataLength + 1] = (byte)(crc >> 8);//高8位
             //packetXMitBuffer[2 + dataLength] = (byte)crc;//低8位
 
-            lock (responseSignal)
-            {
+            lock(responseSignal) {
                 responsePacket = null;//清空响应包
                 // comPort
 
-                com.Write(stringPacketXMitBuffer);
+                comPort.Write(stringPacketXMitBuffer);
 
                 //DateTime sendTime = DateTime.Now;
 
-                if (Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
+                if(Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
                 {
                     //Trace.WriteLine(DateTime.Now - sendTime);
                     //using (StreamWriter sw = new StreamWriter(@".\" + address + ".log", true, Encoding.ASCII))
@@ -514,16 +492,14 @@ namespace SerialPortListener
         {
             //ushort crc;
 
-            if ((null == data && dataLength != 0) || dataLength > data.Length)
-            {
+            if((null == data && dataLength != 0) || dataLength > data.Length) {
                 throw new ArgumentException("发送数据无效");
             }
             //XMit transmit 传输，转送，传达，传导，发射，遗传，传播，发射信号(代号)
 
             packetXMitBuffer[0] = type;//命令头 
             packetXMitBuffer[1] = dataLength;//数据长度
-            if (0 != dataLength)
-            {
+            if(0 != dataLength) {
                 Array.Copy(data, 0, packetXMitBuffer, 2, dataLength);
             }
 
@@ -531,13 +507,12 @@ namespace SerialPortListener
             //packetXMitBuffer[2 + dataLength + 1] = (byte)(crc >> 8);//高8位
             //packetXMitBuffer[2 + dataLength] = (byte)crc;//低8位
 
-            lock (responseSignal)
-            {
+            lock(responseSignal) {
                 responsePacket = null;//清空响应包
                 // comPort
 
-                com.Write(packetXMitBuffer, 0, dataLength + 4);
-                if (Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
+                comPort.Write(packetXMitBuffer, 0, dataLength + 4);
+                if(Monitor.Wait(responseSignal, MAX_RESPONSE_TIME))//发送后等待响应
                 {
 
                     return responsePacket;
@@ -646,8 +621,7 @@ namespace SerialPortListener
         //接收数据线程
         protected override void Receive()
         {
-            try
-            {
+            try {
                 string receiveBuffer = string.Empty;
                 string stringPacket = string.Empty;
                 int startPacketIndex = -1;//当前包开始索引
@@ -656,65 +630,52 @@ namespace SerialPortListener
                 bool packetFrameHeaderIsSet = false;//包开始符号是否设置
 
                 //线程循环
-                while (true)
-                {
-                    if (workThreadRun)
-                    {
+                while(true) {
+                    if(workThreadRun) {
                         //因为该Demo协议 包长度在第二位 所以在期望包长度没有设置的情况下 bytesRead<=1也是继续读取的条件
-                        if (packetFrameHeaderIsSet || 1 > receiveBuffer.Length)//复制存储缓冲区数据
+                        if(packetFrameHeaderIsSet || 1 > receiveBuffer.Length)//复制存储缓冲区数据
                         {
                             //If the expectedPacketLength has been or no bytes have been read
                             //翻译:如果预期包长度已经设置或者没有字节已经被读取
                             //This covers the case that more then 1 entire packet has been read in at a time
                             //翻译:这包含一次读取超过一个完整包的情况
                             // comPort
-                            try
-                            {
-                                receiveBuffer += com.ReadExisting();//读取字节数据//bufferIndex = startPacketIndex + bytesRead;//修改缓冲区下一位置指针
-                            }
-
-                            catch (TimeoutException)
-                            {
+                            try {
+                                receiveBuffer += comPort.ReadExisting();//读取字节数据//bufferIndex = startPacketIndex + bytesRead;//修改缓冲区下一位置指针
+                            } catch(TimeoutException) {
                                 timedOut = true;//超时设置
                             }
                         }
 
-                        if (1 <= receiveBuffer.Length)//长度超过1说明期望包长度字节应该出现(在第二位) 处理已接收缓冲区数据
+                        if(1 <= receiveBuffer.Length)//长度超过1说明期望包长度字节应该出现(在第二位) 处理已接收缓冲区数据
                         {
                             //The buffer has the singleRecordLength for the packet
                             //翻译:缓冲区已经存在包数据长度
-                            if (!packetFrameHeaderIsSet)//设置帧开始标志
+                            if(!packetFrameHeaderIsSet)//设置帧开始标志
                             {
                                 startPacketIndex = receiveBuffer.IndexOf(FRAME_HEAD);
 
                                 packetFrameHeaderIsSet = startPacketIndex != -1;
-                                if (!packetFrameHeaderIsSet)
-                                {
+                                if(!packetFrameHeaderIsSet) {
                                     receiveBuffer = string.Empty;
                                 }
-                            }
-
-                            if (packetFrameHeaderIsSet)//包开始符已经设置
+                            } else if(packetFrameHeaderIsSet)//包开始符已经设置
                             {
                                 endPacketIndex = receiveBuffer.IndexOf(FRAME_TAIL);
-                                if (endPacketIndex != -1)
-                                {
+                                if(endPacketIndex != -1) {
                                     stringPacket = receiveBuffer.Substring(startPacketIndex, endPacketIndex - startPacketIndex + 1);
                                     receiveBuffer = receiveBuffer.Remove(startPacketIndex, endPacketIndex - startPacketIndex + 1);
 
                                     AddPacket(stringPacket.Substring(1, stringPacket.Length - 2));
 
                                     packetFrameHeaderIsSet = false;
-                                    nextStartPacketIndex = receiveBuffer.IndexOf(FRAME_HEAD);
-                                    if (!string.IsNullOrEmpty(receiveBuffer))
-                                    {
-                                        if (nextStartPacketIndex > 0)
-                                        {
-                                            receiveBuffer = receiveBuffer.Remove(0, nextStartPacketIndex);
-                                        }
 
-                                        else if (nextStartPacketIndex == -1)
-                                        {
+                                    //处理剩余异常数据
+                                    if(!string.IsNullOrEmpty(receiveBuffer)) {
+                                        nextStartPacketIndex = receiveBuffer.IndexOf(FRAME_HEAD);
+                                        if(nextStartPacketIndex > 0) {
+                                            receiveBuffer = receiveBuffer.Remove(0, nextStartPacketIndex);
+                                        } else if(nextStartPacketIndex == -1) {
                                             receiveBuffer = string.Empty;
                                         }
                                     }
@@ -727,20 +688,13 @@ namespace SerialPortListener
                 }
 
 
-            }
-
-            catch (IOException ioe)
-            {
+            } catch(IOException ioe) {
                 // abort the thread
                 //翻译:终止线程
                 //System.Threading.Thread.CurrentThread.Abort();
                 throw ioe;
-            }
-
-            catch (ObjectDisposedException ode)
-            {
-                if (receiveThread != null)
-                {
+            } catch(ObjectDisposedException ode) {
+                if(receiveThread != null) {
                     receiveThread = null;
                 }
                 throw ode;
@@ -750,30 +704,23 @@ namespace SerialPortListener
         //事件报告线程
         protected override void ReportEventHandler()
         {
-            try
-            {
+            try {
                 //报告包引用变量
                 DistancePacket packet = null;
 
                 //线程循环
-                while (true)
-                {
-                    if (this.eventThreadRun)
-                    {
+                while(true) {
+                    if(this.eventThreadRun) {
                         //等待接收线程的报告通知
-                        while (null == packet)
-                        {
-                            lock (reportSignal)
-                            {
+                        while(null == packet) {
+                            lock(reportSignal) {
                                 //如果报告队列中已经存在报告 则取出报告包进行处理
-                                if (0 != reportQueue.Count)
-                                {
+                                if(0 != reportQueue.Count) {
                                     packet = (DistancePacket)reportQueue.Dequeue();
                                 }
 
                                 //如果没有报告则等待报告(线程等待)
-                                else
-                                {
+                                else {
                                     Monitor.Wait(reportSignal);
                                 }
                             }
@@ -781,8 +728,7 @@ namespace SerialPortListener
 
                         DistanceData recordData = GenerateRecordData(packet);
 
-                        if (recordData != null)
-                        {
+                        if(recordData != null) {
                             RaiseReportEvent(recordData);
                         }
 
@@ -792,26 +738,16 @@ namespace SerialPortListener
 
                         //}
                         packet = null;
-                    }
-
-                    else
-                    {
+                    } else {
                         Thread.Sleep(5000);
                     }
                 }
-            }
-
-            catch (IOException ioe)
-            {
+            } catch(IOException ioe) {
                 // abort the thread
                 //System.Threading.Thread.CurrentThread.Abort();
                 throw ioe;
-            }
-
-            catch (ObjectDisposedException ode)
-            {
-                if (eventThread != null)
-                {
+            } catch(ObjectDisposedException ode) {
+                if(eventThread != null) {
                     eventThread = null;
                 }
                 throw ode;
@@ -819,10 +755,8 @@ namespace SerialPortListener
         }
         private DistanceData GenerateRecordData(DistancePacket packet)
         {
-            if (null != packet)
-            {
-                try
-                {
+            if(null != packet) {
+                try {
                     string[] dataFields = packet.StringData.Split('|');
 
                     DistanceData distanceData = new DistanceData();
@@ -834,16 +768,10 @@ namespace SerialPortListener
                     distanceData.Battery = Convert.ToInt32(dataFields[1], 10);
 
                     return distanceData;
-                }
-
-                catch
-                {
+                } catch {
                     return null;
                 }
-            }
-
-            else
-            {
+            } else {
                 return null;
             }
         }
