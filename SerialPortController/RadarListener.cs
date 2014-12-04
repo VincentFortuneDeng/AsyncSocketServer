@@ -224,6 +224,46 @@ namespace SerialPortListener
         private const byte WRITE_MULTI_VALUE = 0x10;
         private const byte WRITE_SINGLE_VALUE = 0x06;
 
+        private bool AddPacket(byte[] buffer, int startIndex, int length)
+        {
+            IDataFramePacket packet = CreatePacket(buffer, startIndex, length);//创建包
+
+            ushort calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
+
+            if(calculatedCRC != packet.CRC) {
+                //MessageBox.Show("CRC错误");
+                //string outputString = "";
+                //calculatedCRC = CRC16Generator.GenerateCRC(buffer, startIndex, packet.Type == READ_VAULES ? packet.DataLength + 3 : 6);//重新计算CRC
+                /*foreach (byte bt in packet.Data)
+                {
+                    outputString += " " + Convert.ToString(bt, 16);
+                }*/
+                //Trace.WriteLine("Recevie " + outputString);
+                Debug.WriteLine(string.Format("Recevie:" + "CRC ERROR!(CRC 错误): Calculated(计算值) CRC={0} Actual(实际值) CRC={1}",
+                    Convert.ToString(calculatedCRC, 16), Convert.ToString(packet.CRC, 16)));
+
+                return false;
+            } else //if (calculatedCRC == packet.CRC)
+            {
+                switch(packet.PacketType) {
+                    case DataPacketType.NORMAL_RESPONSE://正常响应包
+                        AddResponsePacket(packet);//添加响应包 并通知发送线程
+                        break;
+
+                    case DataPacketType.NORMAL_REPORT://正常报告包 
+                        AddReportPacket(packet);//添加报告包 并通知报告线程
+                        break;
+
+                    case DataPacketType.SPECIAL_RESPONSE://错误响应包
+                        AddResponsePacket(packet);//添加响应包 并通知发送线程
+                        AddReportPacket(packet);//添加报告包 并通知报告线程
+                        break;
+                }
+                return true;
+            }
+            throw new NotImplementedException();
+        }
+
         //添加数据包
         protected override bool AddPacket(byte[] buffer, int startIndex)
         {
@@ -349,6 +389,36 @@ namespace SerialPortListener
                 // Keep us from calling resetting or closing multiple times
                 disposed = true;
             }
+        }
+
+        private int FindIndex(byte[] buffer, byte value, int start, int length)
+        {
+            int result = -1;
+            if(buffer.Length != 0) {
+                for(int i = 0; i < length; i++) {
+                    if(buffer[(start + i) % buffer.Length] == value) {
+                        result = i;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private void Copy(byte[] buffer, int start, out byte[] bufferCopy, int length)
+        {
+            bufferCopy = new byte[length];
+            if(buffer.Length != 0) {
+                for(int i = 0; i < length; i++) {
+                    bufferCopy[i] = buffer[(start + i) % buffer.Length];
+                }
+            }
+        }
+
+        private IDataFramePacket CreatePacket(byte[] buffer, int startIndex, int length)
+        {
+            throw new NotImplementedException();
         }
 
         //二进制字节数据转换为包数据
@@ -650,89 +720,144 @@ namespace SerialPortListener
 
         //接收数据线程
         protected override void Receive()
-        {
+        {//适用于前后有帧头帧尾二进制接收
             try {
                 byte[] receiveBuffer = new byte[READ_BUFFER_SIZE];//接收缓冲区
                 int bytesRead = 0;//已读字节
                 int bufferIndex = 0;//缓冲区索引
                 int startPacketIndex = 0;//包开始索引
+                int nextStartPacketIndex = -1;//测试下一包开始位置
                 int endPacketIndex = -1;//包结束索引
                 int expectedPacketLength = -1;//期望包长度
                 //bool expectedPacketLengthIsSet = false;//期望包长度是否设置
                 int numBytesToRead = receiveBuffer.Length;//要读取的字节数量
-                bool packetFrameHeaderIsSet = false;//包开始符号是否设置
+                bool packetFrameHeaderFound = false;//包开始符号是否设置
 
                 //消息循环
                 while(true) {
-                    //MessageBox.Show("Run"+workThreadRun); 
                     if(workThreadRun) {
-                        //MessageBox.Show(string.Format("expectedPacketLengthIsSet{0},bytesRead{1}", expectedPacketLengthIsSet, bytesRead));
-                        //因为该Demo协议 包长度在第二位 所以在期望包长度没有设置的情况下 bytesRead<=1也是继续读取的条件
+                        //因为该协议 以帧头帧尾作为包提取条件 所以在帧头没有设置的情况下 bytesRead<1(未读取任何字符)继续读取的条件
                         //if(expectedPacketLengthIsSet || 1 > bytesRead) {
-                        if(packetFrameHeaderIsSet || 1 > bytesRead) {
-                            //If the expectedPacketLength has been or no bytes have been read
-                            //翻译:如果预期包长度已经设置或者没有字节已经被读取
-                            //This covers the case that more then 1 entire packet has been read in at a time
-                            //翻译:这包含一次读取超过一个完整包的情况
-                            // comPort
+                        if(packetFrameHeaderFound || 1 > bytesRead) {
+
+                            //如果预期帧头已经发现或者未读取任何字符
+                            //这包括一次读取超过一个完整包的情况
 
                             try {
-                                //MessageBox.Show(bytesRead.ToString());
                                 bytesRead += comPort.Read(receiveBuffer, bufferIndex, numBytesToRead);//读取字节数据
-                                //Trace.WriteLine("bytesRead" + bytesRead);
-                                bufferIndex = startPacketIndex + bytesRead;//修改缓冲区下一位置指针
-                                //MessageBox.Show(bytesRead.ToString());
+                                bufferIndex = startPacketIndex + bytesRead;//修改循环缓冲区下一位置指针
                             } catch(TimeoutException) {
                                 timedOut = true;//超时设置
                             }
                         }
 
-                        if(1 <= bytesRead)//长度超过1说明期望包长度字节应该出现(在第二位)
+                        if(1 <= bytesRead)//已读取若干字节
                         {
-                            //The buffer has the dataLength for the packet
-                            //翻译:缓冲区已经存在包数据长度
-                            if(!packetFrameHeaderIsSet)//帧头未发现
+                            //帧头未发现
+                            if(!packetFrameHeaderFound)//帧头未发现
                             {
-                                //If the expectedPacketLength has not been set for this packet
-                                //如果期望包长度没有设置
+                                //如果帧头未发现
 
-                                startPacketIndex = Array.IndexOf<byte>(receiveBuffer, FRAME_HEAD, startPacketIndex, bytesRead);//需要修改循环缓冲区算法
-                                packetFrameHeaderIsSet = startPacketIndex != -1;//长度已经设置
-                                if(!packetFrameHeaderIsSet) {
-                                    bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                nextStartPacketIndex = FindIndex(receiveBuffer, FRAME_HEAD, startPacketIndex, bytesRead);//使用循环缓冲区查找算法搜索帧头
+                                packetFrameHeaderFound = nextStartPacketIndex != -1;//帧头检测结果
+
+                                if(!packetFrameHeaderFound) {//帧头未发现
+                                    bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置置零
                                     bytesRead = 0;//重置接收字节数据计数器
+                                } else {//帧头已经发现
+
+                                    /*
+                                     * 
+                                     * 删除帧头之前无用字节
+                                     * 
+                                     */
+
+                                    //已读字节调整
+                                    bytesRead -= nextStartPacketIndex >= startPacketIndex ? nextStartPacketIndex - startPacketIndex :
+                                           nextStartPacketIndex + receiveBuffer.Length - startPacketIndex;
+                                    //调整包起始索引位置
+                                    startPacketIndex = nextStartPacketIndex;
                                 }
                             } else {
-                                endPacketIndex = Array.IndexOf<byte>(receiveBuffer, FRAME_TAIL, startPacketIndex + 1, bytesRead - 1);//需要修改循环缓冲区算法
+
+                                endPacketIndex = FindIndex(receiveBuffer, FRAME_TAIL,
+                                    (startPacketIndex + 1) % receiveBuffer.Length, bytesRead - 1);//需要修改循环缓冲区算法
 
                                 //已经有至少一个包长度的字节数据
                                 if(endPacketIndex != -1) {
                                     //The buffer has atleast as many bytes for this packet
                                     //翻译:缓冲区已经存在至少一个包或者多于一个包的字节数据
-                                    
+                                    expectedPacketLength = endPacketIndex > startPacketIndex ? endPacketIndex - startPacketIndex + 1 :
+                                        endPacketIndex + receiveBuffer.Length - startPacketIndex + 1;
 
-                                    bool added = AddPacket(receiveBuffer, startPacketIndex);
-                                    //数据添加到包
-                                    packetFrameHeaderIsSet = false;//期望包长度重置(已经收集到一个包数据)
-
-                                    //TODO处理剩余异常数据
-
-                                    //TODO删除已处理数据
-                                    //正好收集到一个包数据
-                                    if(bytesRead == expectedPacketLength || !added) {
-                                        //The buffer contains only the bytes for this packet
-                                        //翻译:缓冲区包含仅一个包的字节数据
-                                        bytesRead = 0;//重置接收字节数据计数器
-                                        bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                    if(expectedPacketLength == 2) {//帧头帧尾连接情况
+                                        startPacketIndex = endPacketIndex;
+                                        bytesRead -= 1;
                                     } else {
-                                        //缓冲区字节数据多于1个包的字节数据
 
-                                        //The buffer also has bytes for the next packet
-                                        //翻译:缓冲区包含下一数据包的字节数据
-                                        startPacketIndex += expectedPacketLength;//下一包的开始位置
-                                        startPacketIndex %= receiveBuffer.Length;//缓冲区溢出循环
-                                        bytesRead -= expectedPacketLength;//记录下下一包以读取数据字节数
-                                        bufferIndex = startPacketIndex + bytesRead;//缓冲区位置计数
+                                        /*
+                                         * 
+                                         * 二进制数据包已提取，进行包翻译
+                                         * 
+                                         */
+                                        bool added = AddPacket(receiveBuffer, startPacketIndex, expectedPacketLength);
+                                        /*
+                                         * 
+                                         * 二进制数据包已提取，进行包翻译
+                                         * 
+                                         */
+
+                                        //数据添加到包
+                                        packetFrameHeaderFound = false;//期望包长度重置(已经收集到一个包数据)
+
+                                        //TODO处理剩余异常数据
+
+                                        /*
+                                         * TODO删除已处理数据
+                                         */
+                                        //startPacketIndex += expectedPacketLength;//下一包的开始位置
+                                        //startPacketIndex %= receiveBuffer.Length;//缓冲区溢出循环
+                                        //bytesRead -= expectedPacketLength;//记录下下一包以读取数据字节数
+                                        //bufferIndex = startPacketIndex + bytesRead;//缓冲区位置计数
+                                        /*
+                                         * TODO删除已处理数据
+                                         */
+
+                                        if(bytesRead != expectedPacketLength) {//有剩余数据
+                                            //正好收集到一个包数据
+
+                                            //缓冲区字节数据多于1个包的字节数据
+
+                                            /*
+                                             * TODO删除已处理数据
+                                             */
+                                            //The buffer also has bytes for the next packet
+                                            //翻译:缓冲区包含下一数据包的字节数据
+                                            startPacketIndex += expectedPacketLength;//下一包的开始位置
+                                            startPacketIndex %= receiveBuffer.Length;//缓冲区溢出循环
+                                            bytesRead -= expectedPacketLength;//记录下下一包以读取数据字节数
+                                            bufferIndex = startPacketIndex + bytesRead;//缓冲区位置计数
+                                            /*
+                                             * TODO删除已处理数据
+                                             */
+                                            nextStartPacketIndex = FindIndex(receiveBuffer, FRAME_HEAD, startPacketIndex, bytesRead);
+
+                                            if(nextStartPacketIndex == -1) {
+                                                bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                                bytesRead = 0;//重置接收字节数据计数器
+                                            } else if((nextStartPacketIndex >= startPacketIndex ? nextStartPacketIndex : nextStartPacketIndex + receiveBuffer.Length) > startPacketIndex) {
+                                                //处理剩余异常数据
+                                                //调整包起始索引位置
+                                                bytesRead -= nextStartPacketIndex > startPacketIndex ? nextStartPacketIndex - startPacketIndex :
+                                                       nextStartPacketIndex + receiveBuffer.Length - startPacketIndex;
+                                                startPacketIndex = nextStartPacketIndex;
+                                            }
+                                        } else {//无剩余数据
+                                            //The buffer contains only the bytes for this packet
+                                            //翻译:缓冲区包含仅一个包的字节数据
+                                            bytesRead = 0;//重置接收字节数据计数器
+                                            bufferIndex = startPacketIndex = 0;//缓冲区下一索引位置与包开始的位置相同
+                                        }
                                     }
                                 }
                             }

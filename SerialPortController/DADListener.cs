@@ -375,7 +375,7 @@ namespace SerialPortListener
         //private const byte WRITE_MULTI_VAULE = 0x10;
         //private const byte WRITE_SINGLE_VALUE = 0x06;
 
-        protected IDataFramePacket CreatePacket(string stringPacket)
+        private IDataFramePacket CreatePacket(string stringPacket)
         {
             string[] packetFields = stringPacket.Split('.');
 

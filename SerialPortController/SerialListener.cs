@@ -11,7 +11,7 @@ namespace SerialPortListener
     {
         #region protected const
         //protected int waitTime;
-        protected const int READ_BUFFER_SIZE = 1024;
+        protected const int READ_BUFFER_SIZE = 8192;
         protected const int MAX_DATA_LENGTH = 60;
         protected const int MAX_RESPONSE_TIME = 300;
         //protected const int LINE_LENGTH = 16;
