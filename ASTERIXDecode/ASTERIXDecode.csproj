@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1B1F0655-0B36-420B-BEED-CA9F74A89209}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ASTERIXDecode</RootNamespace>
+    <AssemblyName>ASTERIXDecode</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GMap.NET.Core">
+      <HintPath>..\GMap\GMap.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ASTERIXDecoder.cs" />
+    <Compile Include="ASTERIX\ASTERIX.cs" />
+    <Compile Include="ASTERIX\Bit_Ops.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01Decode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ASTERIX\CAT001\CAT01Decode.Designer.cs">
+      <DependentUpon>CAT01Decode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ASTERIX\CAT001\CAT01DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I020Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I020UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I030Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I030UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I040Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I040UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I042Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I042UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I050Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I050UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I060Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I060UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I070Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I070UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I080Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I080UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I090Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I090UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I100Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I100UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I120Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I120UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I130Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I130UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I131Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I131UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I141Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I141UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I150Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I150UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I161Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I161UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I170Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I170UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I200Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I200UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I210Types.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01I210UserData.cs" />
+    <Compile Include="ASTERIX\CAT001\CAT01ISPIUserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I000Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I000UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I020Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I020UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I030Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I030UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I041Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I041UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I050Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I050UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I060Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I060UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I070Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I070UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I080Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I080UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I090Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I090UserData.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I100Types.cs" />
+    <Compile Include="ASTERIX\CAT002\CAT02I100UserData.cs" />
+    <Compile Include="ASTERIX\CAT008\CAT08.cs" />
+    <Compile Include="ASTERIX\CAT008\CAT08DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I000Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I000UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I020Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I020UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I030Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I030UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I041Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I041UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I050Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I050UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I060Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I060UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I070Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I070UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I090Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I090UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I100Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I100UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I110Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I110UserData.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I120Types.cs" />
+    <Compile Include="ASTERIX\CAT034\CAT34I120UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I020Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I020UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I030Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I030UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I040Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I040UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I042Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I042UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I050Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I050UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I055Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I055UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I060Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I060UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I065Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I065UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I070Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I070UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I080Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I080UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I090Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I090UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I100Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I100UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I110Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I110UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I120Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I120UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I130Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I130UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I140Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I140UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I161Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I161UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I170Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I170UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I200Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I200UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I210Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I210UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I220Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I220UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I230Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I230UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I240Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I240UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I250Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I250UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I260Types.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48I260UserData.cs" />
+    <Compile Include="ASTERIX\CAT048\CAT48ISPIUserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I015Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I015UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I040UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I060Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I060UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I070Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I070UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I080UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I100UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I105Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I105UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I110UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I120UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I130UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I135UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I136UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I185Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I185UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I200UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I210UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I220Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I220UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I245UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I270UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I290Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I290UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I295Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I295UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I300UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I340Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I340UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I380Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I380UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I390Types.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I390UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I5005UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62I510UserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62IREFUserData.cs" />
+    <Compile Include="ASTERIX\CAT062\CAT62ISPIUserData.cs" />
+    <Compile Include="ASTERIX\CAT063\CAT63.cs" />
+    <Compile Include="ASTERIX\CAT063\CAT63DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT065\CAT65.cs" />
+    <Compile Include="ASTERIX\CAT065\CAT65DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\CAT244\CAT244.cs" />
+    <Compile Include="ASTERIX\CAT244\CAT244DecodeAndStore.cs" />
+    <Compile Include="ASTERIX\SharedData.cs" />
+    <Compile Include="BitExtractor.cs" />
+    <Compile Include="DATA SET\DisplayAttributes.cs" />
+    <Compile Include="DATA SET\DisplayAttributes_IO.cs" />
+    <Compile Include="DATA SET\LabelAttributes.cs" />
+    <Compile Include="DATA SET\LoadAdaptationData.cs" />
+    <Compile Include="DATA SET\LoadCoreSettings.cs" />
+    <Compile Include="DATA SET\LoadRadars.cs" />
+    <Compile Include="DATA SET\LoadRunwayBoundaries.cs" />
+    <Compile Include="DATA SET\LoadSectorBoundaries.cs" />
+    <Compile Include="DATA SET\LoadStateBoundaries.cs" />
+    <Compile Include="DATA SET\LoadWaypoints.cs" />
+    <Compile Include="DATA SET\SystemAdaptationDataSet.cs" />
+    <Compile Include="GeoCordSystem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HDLCPacket.cs" />
+    <Compile Include="HDLCPacketTAG.cs" />
+    <Compile Include="MainASTERIXDataStorage.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\Angle.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\Ellipsoid.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\GeodeticCalculator.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\GeodeticCurve.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\GeodeticMeasurement.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\GlobalCoordinates.cs" />
+    <Compile Include="MIKE GAVANGHAN - GEODETIC\GlobalPosition.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs" />
+    <Compile Include="Properties\Settings.Designer.cs" />
+    <Compile Include="RadarMessage.cs" />
+    <Compile Include="RadarMessageCatalogo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AsyncSocket\AsyncSockets.csproj">
+      <Project>{f4f4cb36-c4b3-4296-ae46-8855d4bc5cc5}</Project>
+      <Name>AsyncSockets</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ASTERIX\CAT001\CAT01Decode.resx">
+      <DependentUpon>CAT01Decode.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Resources\Thumbs.db" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\DARR.ico" />
+    <Content Include="Resources\radar.jpg" />
+    <Content Include="Resources\waypoint.jpg" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

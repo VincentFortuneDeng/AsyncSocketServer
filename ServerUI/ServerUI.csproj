@@ -58,6 +58,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmADSBSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmADSBSettings.Designer.cs">
+      <DependentUpon>frmADSBSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmServer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,6 +78,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmADSBSettings.resx">
+      <DependentUpon>frmADSBSettings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmServer.resx">
       <DependentUpon>frmServer.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -139,6 +148,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ASTERIXDecode\ASTERIXDecode.csproj">
+      <Project>{1b1f0655-0b36-420b-beed-ca9f74a89209}</Project>
+      <Name>ASTERIXDecode</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AsyncSocket\AsyncSockets.csproj">
       <Project>{f4f4cb36-c4b3-4296-ae46-8855d4bc5cc5}</Project>
       <Name>AsyncSockets</Name>

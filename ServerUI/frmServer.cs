@@ -17,6 +17,7 @@ using System.Diagnostics;
 using InterfaceFactory;
 using TCPServer.Library;
 using TCPServer.Interface;
+using ASTERIXDecode;
 
 
 
@@ -61,6 +62,8 @@ namespace TCPServer
         private const int DEFAULT_STEP = 50;
 
         private const int START_DELAY = 500;
+
+        ASTERIXDecoder aSTERIXDecoder = new ASTERIXDecoder();
 
         //private bool m_Listening;
 
@@ -130,6 +133,8 @@ namespace TCPServer
                 m_Server = new AsyncServer(m_numConnections, m_bufferSize);
 
                 this.m_Server.OnDataReceived += new EventHandler<AsyncUserToken>(this.svr_OnDataReceived);//注册接收到数据事件
+                this.m_Server.OnDataReceived += new EventHandler<AsyncUserToken>(aSTERIXDecoder.ProcessRadarData);//注册接收到数据事件
+                
                 this.m_Server.OnDisconnected += new EventHandler<AsyncUserToken>(this.svr_OnDisconnected);//注册断开连接事件
                 this.m_Server.OnError += new EventHandler<AsyncSocketErrorEventArgs>(svr_OnError);//处理Socket错误
                 this.m_Server.OnConnected += new EventHandler<AsyncUserToken>(svr_OnClientConnected);
