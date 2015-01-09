@@ -8,8 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ASTERIXDecode.Properties
-{
+namespace ASTERIXDecode.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -86,7 +85,7 @@ namespace ASTERIXDecode.Properties
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool CAT_002_Enabled {
             get {
                 return ((bool)(this["CAT_002_Enabled"]));
@@ -110,7 +109,7 @@ namespace ASTERIXDecode.Properties
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool CAT_034_Enabled {
             get {
                 return ((bool)(this["CAT_034_Enabled"]));
@@ -122,7 +121,7 @@ namespace ASTERIXDecode.Properties
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool CAT_048_Enabled {
             get {
                 return ((bool)(this["CAT_048_Enabled"]));
@@ -134,7 +133,7 @@ namespace ASTERIXDecode.Properties
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool CAT_062_Enabled {
             get {
                 return ((bool)(this["CAT_062_Enabled"]));
@@ -542,7 +541,7 @@ namespace ASTERIXDecode.Properties
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool RecordActiveInRaw {
             get {
                 return ((bool)(this["RecordActiveInRaw"]));

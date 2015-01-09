@@ -18,7 +18,7 @@ namespace ASTERIXDecode
         // This boolean is just a flag which indicates 
         // if data is to be collected. It is set ON/OFF from
         // the user interface.
-        public static bool bool_Listen_for_Data = false;
+        public static bool bool_Listen_for_Data = true;
 
         // This boolean indicates if data recording is
         // requested. If so then ASTERIX package will store
@@ -27,7 +27,7 @@ namespace ASTERIXDecode
         public static class DataRecordingClass
         {
             public static bool DataRecordingRequested = false;
-            public static string FilePathandName = "";
+            public static string FilePathandName = @".\RadarRecord.log";
         }
 
         // This list box stores received data while the listener is
