@@ -11,7 +11,7 @@ using System.IO;
 
 namespace ASTERIXDecode
 {
-    static class ASTERIX
+    public static class ASTERIX
     {
         private static DateTime LastDataBlockDateTimeForRecording;
         private static DateTime LastDataBlockDateTimeForStalleData;
@@ -59,7 +59,7 @@ namespace ASTERIXDecode
         public static void CleanUp()
         {
             // If socket is opened then close it
-            if (sock != null)
+            if(sock != null)
                 sock.Close();
         }
 
@@ -74,36 +74,32 @@ namespace ASTERIXDecode
 
             // If data is being acquired then stop 
             // acquistion and wait for a 1 second
-            if (Listen_for_Data_Was_On == true)
-            {
+            if(Listen_for_Data_Was_On == true) {
                 SharedData.bool_Listen_for_Data = false;
                 Thread.Sleep(1000);
             }
 
             // If socket is opened then close it
-            if (sock != null)
+            if(sock != null)
                 sock.Close();
 
             // Open up a new socket with the net IP address and port number   
-            try
-            {
+            try {
                 sock = new UdpClient();
                 sock.ExclusiveAddressUse = false;
                 iep = new IPEndPoint(IPAddress.Any, SharedData.Current_Port);
                 sock.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 sock.ExclusiveAddressUse = false;
                 sock.Client.Bind(iep);
-                sock.JoinMulticastGroup(IPAddress.Parse(SharedData.CurrentMulticastAddress), IPAddress.Parse(SharedData.CurrentInterfaceIPAddress));
-            }
-            catch
-            {
+                //sock.JoinMulticastGroup(IPAddress.Parse(SharedData.CurrentMulticastAddress), IPAddress.Parse(SharedData.CurrentInterfaceIPAddress));
+            } catch(Exception e) {
                 MessageBox.Show("ASTERIX ReinitializeSocket: Not possible! Make sure given IP address/port is a valid one on your system or not already used by some other process");
                 Reinitialize_Result = false;
             }
 
             // Everything is done, now resume listening (data acqusition) if it was active
             // before new data was entered.
-            if (Listen_for_Data_Was_On == true)
+            if(Listen_for_Data_Was_On == true)
                 SharedData.bool_Listen_for_Data = true;
 
             return Reinitialize_Result;
@@ -112,7 +108,7 @@ namespace ASTERIXDecode
         public static void RequestStop()
         {
             _shouldStop = true;
-            if (sock != null)
+            if(sock != null)
                 sock.Close();
         }
 
@@ -132,35 +128,28 @@ namespace ASTERIXDecode
             bool ThereWasAnException = false;
 
             // File stream
-           // Stream RecordingStream_debug = new FileStream(@"C:\ASTERIX\Italy", FileMode.Create);
+            // Stream RecordingStream_debug = new FileStream(@"C:\ASTERIX\Italy", FileMode.Create);
             //BinaryWriter RecordingBinaryWriter_debug = new BinaryWriter(RecordingStream_debug);
 
             // Loop forever
-            while (!_shouldStop)
-            {
+            while(!_shouldStop) {
                 // Do something only if user has requested so
-                if (SharedData.bool_Listen_for_Data)
-                {
+                if(SharedData.bool_Listen_for_Data) {
                     ThereWasAnException = false;
-                    try
-                    {
+                    try {
                         // Lets receive data in an array of bytes 
                         // (an octet, of course composed of 8bits)
                         UDPBuffer = sock.Receive(ref iep);
                         LastDataBlockDateTimeForStalleData = DateTime.Now;
-                    }
-                    catch
-                    {
+                    } catch {
                         ThereWasAnException = true;
                     }
 
-                    if (ThereWasAnException == false)
-                    {
+                    if(ThereWasAnException == false) {
                         int DataBufferIndexForThisExtraction = 0;
 
                         // Check if this is non-standard 6 byte RMCDE header ASTERIX.
-                        if (Properties.Settings.Default.RMCDE_ASTERIX)
-                        {
+                        if(Properties.Settings.Default.RMCDE_ASTERIX) {
                             UDPBuffer_Non_Standard = new byte[(UDPBuffer.Length - 6)];
                             Array.Copy(UDPBuffer, 6, UDPBuffer_Non_Standard, 0, (UDPBuffer.Length - 6));
                             UDPBuffer = UDPBuffer_Non_Standard;
@@ -176,33 +165,40 @@ namespace ASTERIXDecode
                         // Loop through the buffer and pass on each ASTERIX category block to
                         // the category extractor. The extractor itslef will then extract individual
                         // data records.
-                        try
-                        {
-                            while (DataBufferIndexForThisExtraction < LenghtOfDataBuffer)
-                            {
+                        try {
+                            while(DataBufferIndexForThisExtraction < LenghtOfDataBuffer) {
                                 byte[] LocalSingle_ASTERIX_CAT_Buffer = new byte[LengthOfASTERIX_CAT];
                                 Array.Copy(UDPBuffer, DataBufferIndexForThisExtraction, LocalSingle_ASTERIX_CAT_Buffer, 0, LengthOfASTERIX_CAT);
                                 ExtractAndDecodeASTERIX_CAT_DataBlock(LocalSingle_ASTERIX_CAT_Buffer, true);
 
+                                //调试udp
+                                for(int i = 0; i < 10; i++) {
+                                    Console.WriteLine(SharedData.DataBox.Items[i].ToString() + Environment.NewLine);
+                                    //RadarLog.AppendText(MainASTERIXDataStorage.CAT01Message[i].ToString() + Environment.NewLine);
+                                    foreach(CAT01.CAT01DataItem item in MainASTERIXDataStorage.CAT01Message[i].CAT01DataItems) {
+                                        if(item.value != null) {
+                                            Console.WriteLine(item.value.ToString());
+                                        }
+                                    }
+                                    Console.WriteLine(Environment.NewLine);
+                                    Console.WriteLine(Environment.NewLine);
+                                }
+
+                                //Console.WriteLine(SharedData.DataBox.Items[i].ToString() + Environment.NewLine);//调试udp
                                 DataBufferIndexForThisExtraction = DataBufferIndexForThisExtraction + LengthOfASTERIX_CAT;
 
-                                if (DataBufferIndexForThisExtraction < LenghtOfDataBuffer)
-                                {
+                                if(DataBufferIndexForThisExtraction < LenghtOfDataBuffer) {
                                     Array.Copy(UDPBuffer, DataBufferIndexForThisExtraction, LocalSingle_ASTERIX_CAT_Buffer, 0, 3);
                                     LengthOfASTERIX_CAT = ASTERIX.ExtractLengthOfDataBlockInBytes_Int(LocalSingle_ASTERIX_CAT_Buffer);
                                 }
                             }
-                        }
-                        catch
-                        {
-                            MessageBox.Show("There was an error in data acquire, please check if standard ASTERIX or RMCDE header is properly selected.");
+                        } catch {
+                            //MessageBox.Show("There was an error in data acquire, please check if standard ASTERIX or RMCDE header is properly selected.");
                         }
 
                         // Check if recording of the currently live connection is requested
-                        if (SharedData.DataRecordingClass.DataRecordingRequested == true)
-                        {
-                            if (RecordingJustStarted == true)
-                            {
+                        if(SharedData.DataRecordingClass.DataRecordingRequested == true) {
+                            if(RecordingJustStarted == true) {
                                 RecordingJustStarted = false;
                                 RecordingStream = new FileStream(SharedData.DataRecordingClass.FilePathandName, FileMode.Create);
                                 RecordingBinaryWriter = new BinaryWriter(RecordingStream);
@@ -210,12 +206,10 @@ namespace ASTERIXDecode
                             }
 
                             // Determine the type of the recording
-                            if (Properties.Settings.Default.RecordActiveInRaw == true)
-                            {
+                            if(Properties.Settings.Default.RecordActiveInRaw == true) {
                                 // Just record in the raw format with not headers added
                                 RecordingBinaryWriter.Write(UDPBuffer);
-                            }
-                            else // Here add headers
+                            } else // Here add headers
                             {
                                 TimeSpan TimeDiff = DateTime.Now - LastDataBlockDateTimeForRecording;
                                 LastDataBlockDateTimeForRecording = DateTime.Now;
@@ -234,14 +228,12 @@ namespace ASTERIXDecode
                                 // Now write the data block
                                 RecordingBinaryWriter.Write(UDPBuffer);
                             }
-                        }
-                        else if (RecordingJustStarted == false)
-                        {
+                        } else if(RecordingJustStarted == false) {
                             RecordingJustStarted = true;
                             // Close the data stream
-                            if (RecordingBinaryWriter != null)
+                            if(RecordingBinaryWriter != null)
                                 RecordingBinaryWriter.Close();
-                            if (RecordingStream != null)
+                            if(RecordingStream != null)
                                 RecordingStream.Close();
                         }
                     }
@@ -257,20 +249,22 @@ namespace ASTERIXDecode
             // get total byte length of the file
             long TotalBytes = new System.IO.FileInfo(FileName).Length;
 
-            try
-            {
+            try {
                 // Open file for reading
                 System.IO.FileStream FileStream = new System.IO.FileStream(FileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 
                 // attach filestream to binary reader
                 System.IO.BinaryReader BinaryReader = new System.IO.BinaryReader(FileStream);
 
-                while (Position < TotalBytes)
-                {
+                while(Position < TotalBytes) {
                     // First determine the size of the message
                     // octet    data
                     // 0        ASTERIX CATEGORY
                     // 1 .. 2   LENGTH OF MESSAGE BLOCK
+
+                    //临时调整
+                    BinaryReader.BaseStream.Position = BinaryReader.BaseStream.Position + 8;
+
                     byte[] Data_Block_Buffer = BinaryReader.ReadBytes((Int32)3);
                     int LengthOfMessageBlock = ASTERIX.ExtractLengthOfDataBlockInBytes_Int(Data_Block_Buffer);//获取数据块长度
 
@@ -278,7 +272,13 @@ namespace ASTERIXDecode
                     // Now read the message and pass it to the parser
                     // for decoding
                     Data_Block_Buffer = BinaryReader.ReadBytes((Int32)LengthOfMessageBlock);//获取数据块数据
+
+                    //recordRadarLog(Data_Block_Buffer);
+
                     ExtractAndDecodeASTERIX_CAT_DataBlock(Data_Block_Buffer, false);
+                    //临时调整
+                    BinaryReader.BaseStream.Position = BinaryReader.BaseStream.Position + 2;
+
                     Position = BinaryReader.BaseStream.Position;
                 }
 
@@ -286,9 +286,7 @@ namespace ASTERIXDecode
                 FileStream.Close();
                 FileStream.Dispose();
                 BinaryReader.Close();
-            }
-            catch (Exception Exception)
-            {
+            } catch(Exception Exception) {
                 // Error
                 MessageBox.Show("Exception caught in process: {0}", Exception.ToString());
             }
@@ -296,6 +294,15 @@ namespace ASTERIXDecode
             return "Read " + Position.ToString() + " of total " + TotalBytes.ToString() + " bytes";
         }
 
+        private static void recordRadarLog(byte[] blockData)
+        {
+            RecordingStream = new FileStream(SharedData.DataRecordingClass.FilePathandName, FileMode.Append);
+            RecordingBinaryWriter = new BinaryWriter(RecordingStream);
+
+            RecordingBinaryWriter.Write(blockData);
+
+            RecordingBinaryWriter.Close();
+        }
 
         private static void ExtractAndDecodeASTERIX_CAT_DataBlock(byte[] DataBlock, bool Is_Live_Data)
         {
@@ -314,12 +321,9 @@ namespace ASTERIXDecode
 
             // Here format the lenght of bytes 
             // to always use 3 characters for better alignement
-            if (LengthOfDataBlockInBytes.Length < 3)
-            {
+            if(LengthOfDataBlockInBytes.Length < 3) {
                 LengthOfDataBlockInBytes = "0" + LengthOfDataBlockInBytes;
-            }
-            else if (LengthOfDataBlockInBytes.Length < 2)
-            {
+            } else if(LengthOfDataBlockInBytes.Length < 2) {
                 LengthOfDataBlockInBytes = "00" + LengthOfDataBlockInBytes;
             }
 
@@ -333,7 +337,7 @@ namespace ASTERIXDecode
             // 6. Append Category specifc data, done just below
 
             string Common_Message_Data_String;
-            if (Is_Live_Data == true)
+            if(Is_Live_Data == true)
                 Common_Message_Data_String = Time + "     " + iep.ToString() + "        " + SharedData.CurrentMulticastAddress + ':' + SharedData.Current_Port.ToString() + "             " + LengthOfDataBlockInBytes.ToString() + "        " + Category + "           ";
             else
                 Common_Message_Data_String = Time + "     " + "Recorded" + "        " + "Recorded" + ':' + "Recorded" + "             " + LengthOfDataBlockInBytes.ToString() + "        " + Category + "           ";
@@ -351,74 +355,64 @@ namespace ASTERIXDecode
 
             // Now do a switch based on the category received
             int NumOfMsgsDecoded = 0;
-            switch (Category)
-            {
+            switch(Category) {
                 // Monoradar Data Target Reports, from a Radar Surveillance System to an SDPS
                 // (plots and tracks from PSRs, SSRs, MSSRs, excluding Mode S and ground surveillance)
                 case "001":
-                    if (Properties.Settings.Default.CAT_001_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_001_Enabled == true) {
                         CAT01 MyCAT01 = new CAT01();
                         MessageData = MyCAT01.Decode(DataBlock, Time, out NumOfMsgsDecoded);
                     }
                     break;
                 // Monoradar Service Messages (status, North marker, sector crossing messages)
                 case "002":
-                    if (Properties.Settings.Default.CAT_002_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_002_Enabled == true) {
                         CAT02 MyCAT02 = new CAT02();
                         MessageData = MyCAT02.Decode(DataBlock, Time, out NumOfMsgsDecoded);
                     }
                     break;
                 // Monoradar Derived Weather Information
                 case "008":
-                    if (Properties.Settings.Default.CAT_008_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_008_Enabled == true) {
                         CAT08 MyCAT08 = new CAT08();
                     }
                     break;
                 // Next version of Category 002: PSR Radar, M-SSR Radar, Mode-S Station
                 case "034":
-                    if (Properties.Settings.Default.CAT_034_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_034_Enabled == true) {
                         CAT34 MyCAT34 = new CAT34();
                         MessageData = MyCAT34.Decode(DataBlock, Time, out NumOfMsgsDecoded);
                     }
                     break;
                 // Next version of Category 001: PSR Radar, M-SSR Radar, Mode-S Station
                 case "048":
-                    if (Properties.Settings.Default.CAT_048_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_048_Enabled == true) {
                         CAT48 MyCAT48 = new CAT48();
                         MessageData = MyCAT48.Decode(DataBlock, Time, out NumOfMsgsDecoded);
                     }
                     break;
                 // System Track Data(next version of Category 030 & 011, also applicable to non-ARTAS systems)
                 case "062":
-                    if (Properties.Settings.Default.CAT_062_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_062_Enabled == true) {
                         CAT62 MyCAT62 = new CAT62();
                         MessageData = MyCAT62.Decode(DataBlock, Time, out NumOfMsgsDecoded);
                     }
                     break;
                 // Sensor Status Messages (SPDS)
                 case "063":
-                    if (Properties.Settings.Default.CAT_063_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_063_Enabled == true) {
                         CAT63 MyCAT63 = new CAT63();
                     }
                     break;
                 // SDPS Service Status Messages (SDPS)
                 case "065":
-                    if (Properties.Settings.Default.CAT_065_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_065_Enabled == true) {
                         CAT65 MyCAT65 = new CAT65();
                     }
                     break;
                 // Transmission of Reference Trajectory State Vectors
                 case "244":
-                    if (Properties.Settings.Default.CAT_244_Enabled == true)
-                    {
+                    if(Properties.Settings.Default.CAT_244_Enabled == true) {
                         CAT244 MyCAT244 = new CAT244();
                     }
                     break;
@@ -428,9 +422,8 @@ namespace ASTERIXDecode
                     break;
             }
 
-            if (Properties.Settings.Default.PopulateMainListBox == true)
-            {
-                for (int I = 0; I < NumOfMsgsDecoded; I++)
+            if(Properties.Settings.Default.PopulateMainListBox == true) {
+                for(int I = 0; I < NumOfMsgsDecoded; I++)
                     SharedData.DataBox.Items.Add(Common_Message_Data_String + MessageData[I]);
             }
         }
@@ -464,19 +457,15 @@ namespace ASTERIXDecode
         {
             string DataOut = Data[CAT_Octet].ToString();
 
-            if (DataOut.Length == 1)
-            {
+            if(DataOut.Length == 1) {
                 DataOut = '0' + DataOut;
             }
 
             // Here format the lenght of bytes 
             // to always use 3 characters for better alignement
-            if (DataOut.Length < 3)
-            {
+            if(DataOut.Length < 3) {
                 DataOut = "0" + DataOut;
-            }
-            else if (DataOut.Length < 2)
-            {
+            } else if(DataOut.Length < 2) {
                 DataOut = "00" + DataOut;
             }
 
@@ -560,17 +549,13 @@ namespace ASTERIXDecode
             ////////////////////////////////////////////////////////////////////////
             // Now check for the 8th bit of each FSPEC field. If it is set 
             // to true then the next octet is also FSPEC.
-            if (BO.DWord[Bit_Ops.Bit0] == true)
-            {
+            if(BO.DWord[Bit_Ops.Bit0] == true) {
                 LenghtOfFSPEC++;
-                if (BO.DWord[Bit_Ops.Bit8] == true)
-                {
+                if(BO.DWord[Bit_Ops.Bit8] == true) {
                     LenghtOfFSPEC++;
-                    if (BO.DWord[Bit_Ops.Bit16] == true)
-                    {
+                    if(BO.DWord[Bit_Ops.Bit16] == true) {
                         LenghtOfFSPEC++;
-                        if (BO.DWord[Bit_Ops.Bit24] == true)
-                        {
+                        if(BO.DWord[Bit_Ops.Bit24] == true) {
                             LenghtOfFSPEC++;
                         }
                     }

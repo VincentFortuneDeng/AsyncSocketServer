@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I040UserData
+    public class CAT01I040UserData
     {
 
         /// <summary>
@@ -80,73 +80,73 @@ namespace ASTERIXDecode
             ///////////////////////////////////////////////////////////////////////////////////////
             // Decode Distance
             ///////////////////////////////////////////////////////////////////////////////////////
-            if (BO.DWord[Bit_Ops.Bit16] == true)
+            if(BO.DWord[Bit_Ops.Bit16] == true)
                 Distance_Loc = RHO_1;
-            if (BO.DWord[Bit_Ops.Bit17] == true)
+            if(BO.DWord[Bit_Ops.Bit17] == true)
                 Distance_Loc = Distance_Loc + RHO_2;
-            if (BO.DWord[Bit_Ops.Bit18] == true)
+            if(BO.DWord[Bit_Ops.Bit18] == true)
                 Distance_Loc = Distance_Loc + RHO_3;
-            if (BO.DWord[Bit_Ops.Bit19] == true)
+            if(BO.DWord[Bit_Ops.Bit19] == true)
                 Distance_Loc = Distance_Loc + RHO_4;
-            if (BO.DWord[Bit_Ops.Bit20] == true)
+            if(BO.DWord[Bit_Ops.Bit20] == true)
                 Distance_Loc = Distance_Loc + RHO_5;
-            if (BO.DWord[Bit_Ops.Bit21] == true)
+            if(BO.DWord[Bit_Ops.Bit21] == true)
                 Distance_Loc = Distance_Loc + RHO_6;
-            if (BO.DWord[Bit_Ops.Bit22] == true)
+            if(BO.DWord[Bit_Ops.Bit22] == true)
                 Distance_Loc = Distance_Loc + RHO_7;
-            if (BO.DWord[Bit_Ops.Bit23] == true)
+            if(BO.DWord[Bit_Ops.Bit23] == true)
                 Distance_Loc = Distance_Loc + RHO_8;
-            if (BO.DWord[Bit_Ops.Bit24] == true)
+            if(BO.DWord[Bit_Ops.Bit24] == true)
                 Distance_Loc = Distance_Loc + RHO_9;
-            if (BO.DWord[Bit_Ops.Bit25] == true)
+            if(BO.DWord[Bit_Ops.Bit25] == true)
                 Distance_Loc = Distance_Loc + RHO_10;
-            if (BO.DWord[Bit_Ops.Bit26] == true)
+            if(BO.DWord[Bit_Ops.Bit26] == true)
                 Distance_Loc = Distance_Loc + RHO_11;
-            if (BO.DWord[Bit_Ops.Bit27] == true)
+            if(BO.DWord[Bit_Ops.Bit27] == true)
                 Distance_Loc = Distance_Loc + RHO_12;
-            if (BO.DWord[Bit_Ops.Bit28] == true)
+            if(BO.DWord[Bit_Ops.Bit28] == true)
                 Distance_Loc = Distance_Loc + RHO_13;
-            if (BO.DWord[Bit_Ops.Bit29] == true)
+            if(BO.DWord[Bit_Ops.Bit29] == true)
                 Distance_Loc = Distance_Loc + RHO_14;
-            if (BO.DWord[Bit_Ops.Bit30] == true)
+            if(BO.DWord[Bit_Ops.Bit30] == true)
                 Distance_Loc = Distance_Loc + RHO_15;
-            if (BO.DWord[Bit_Ops.Bit31] == true)
+            if(BO.DWord[Bit_Ops.Bit31] == true)
                 Distance_Loc = Distance_Loc + RHO_16;
 
             ///////////////////////////////////////////////////////////////////////////////////////
             // Decode Azimuth
             ///////////////////////////////////////////////////////////////////////////////////////
-            if (BO.DWord[Bit_Ops.Bit0] == true)
+            if(BO.DWord[Bit_Ops.Bit0] == true)
                 Azimuth_Loc = THETA_1;
-            if (BO.DWord[Bit_Ops.Bit1] == true)
+            if(BO.DWord[Bit_Ops.Bit1] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_2;
-            if (BO.DWord[Bit_Ops.Bit2] == true)
+            if(BO.DWord[Bit_Ops.Bit2] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_3;
-            if (BO.DWord[Bit_Ops.Bit3] == true)
+            if(BO.DWord[Bit_Ops.Bit3] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_4;
-            if (BO.DWord[Bit_Ops.Bit4] == true)
+            if(BO.DWord[Bit_Ops.Bit4] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_5;
-            if (BO.DWord[Bit_Ops.Bit5] == true)
+            if(BO.DWord[Bit_Ops.Bit5] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_6;
-            if (BO.DWord[Bit_Ops.Bit6] == true)
+            if(BO.DWord[Bit_Ops.Bit6] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_7;
-            if (BO.DWord[Bit_Ops.Bit7] == true)
+            if(BO.DWord[Bit_Ops.Bit7] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_8;
-            if (BO.DWord[Bit_Ops.Bit8] == true)
+            if(BO.DWord[Bit_Ops.Bit8] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_9;
-            if (BO.DWord[Bit_Ops.Bit9] == true)
+            if(BO.DWord[Bit_Ops.Bit9] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_10;
-            if (BO.DWord[Bit_Ops.Bit10] == true)
+            if(BO.DWord[Bit_Ops.Bit10] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_11;
-            if (BO.DWord[Bit_Ops.Bit11] == true)
+            if(BO.DWord[Bit_Ops.Bit11] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_12;
-            if (BO.DWord[Bit_Ops.Bit12] == true)
+            if(BO.DWord[Bit_Ops.Bit12] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_13;
-            if (BO.DWord[Bit_Ops.Bit13] == true)
+            if(BO.DWord[Bit_Ops.Bit13] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_14;
-            if (BO.DWord[Bit_Ops.Bit14] == true)
+            if(BO.DWord[Bit_Ops.Bit14] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_15;
-            if (BO.DWord[Bit_Ops.Bit15] == true)
+            if(BO.DWord[Bit_Ops.Bit15] == true)
                 Azimuth_Loc = Azimuth_Loc + THETA_16;
 
             Azimuth = Azimuth_Loc;
@@ -162,12 +162,10 @@ namespace ASTERIXDecode
             // Extract the current SIC/SAC so the correct radar can be applied
             //
             ASTERIX.SIC_SAC_Time SIC_SAC_TIME = (ASTERIX.SIC_SAC_Time)CAT01.I001DataItems[CAT01.ItemIDToIndex("010")].value;
-            foreach (SystemAdaptationDataSet.Radar RDS in SystemAdaptationDataSet.RadarDataSet)
-            {
+            foreach(SystemAdaptationDataSet.Radar RDS in SystemAdaptationDataSet.RadarDataSet) {
                 // If the current SIC/SAC code matched the code of one of the defined radars
                 // then go ahead and calculate the Lat/Long position.
-                if (RDS.SIC == SIC_SAC_TIME.SIC.ToString() && RDS.SAC == SIC_SAC_TIME.SAC.ToString())
-                {
+                if(RDS.SIC == SIC_SAC_TIME.SIC.ToString() && RDS.SAC == SIC_SAC_TIME.SAC.ToString()) {
                     ResultPosition = GeoCordSystemDegMinSecUtilities.CalculateNewPosition(RDS.RadarPosition, Distance_Loc, Azimuth_Loc);
                 }
             }

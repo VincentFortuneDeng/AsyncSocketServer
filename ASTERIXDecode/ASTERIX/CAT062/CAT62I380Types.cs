@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT62I380Types
+    public class CAT62I380Types
     {
         // WORD 0 
         public static int Target_Address = Bit_Ops.Bit7;

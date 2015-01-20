@@ -47,7 +47,7 @@ namespace ASTERIXDecode
     // n.a. 	Field Extension Indicator
     ////////////////////////////////////////////////////////////////////////////
 
-    class CAT48
+    public class CAT48
     {
         // Current data buffer Index
         public static int CurrentDataBufferOctalIndex = 0;

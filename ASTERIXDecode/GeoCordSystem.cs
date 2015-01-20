@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class GeoCordSystemDegMinSecUtilities
+    public class GeoCordSystemDegMinSecUtilities
     {
         // Define the earth mean radius.
         const double EarthRadius = 6371.0;
@@ -197,13 +197,10 @@ namespace ASTERIXDecode
             ///////////////////////////////////////////////////////////////////////////////////////
             // First convert latitude
             double TempLatitude;
-            if (InData.LatitudeDecimal < 0.0)
-            {
+            if(InData.LatitudeDecimal < 0.0) {
                 OutData.Latitude.Prefix = LatLongPrefix.S;
                 TempLatitude = InData.LatitudeDecimal * -1.0;
-            }
-            else
-            {
+            } else {
                 OutData.Latitude.Prefix = LatLongPrefix.N;
                 TempLatitude = InData.LatitudeDecimal;
             }
@@ -222,17 +219,14 @@ namespace ASTERIXDecode
             OutData.Latitude.Deg = Num1;
             OutData.Latitude.Min = Num2;
             OutData.Latitude.Sec = Num3;
-           
+
             ///////////////////////////////////////////////////////////////////////////////////////
             // Then convert longitude
             double TempLongitudeDec;
-            if (InData.LongitudeDecimal < 0.0)
-            {
+            if(InData.LongitudeDecimal < 0.0) {
                 OutData.Longitude.Prefix = LatLongPrefix.W;
                 TempLongitudeDec = InData.LongitudeDecimal * -1.0;
-            }
-            else
-            {
+            } else {
                 OutData.Longitude.Prefix = LatLongPrefix.E;
                 TempLongitudeDec = InData.LongitudeDecimal;
             }
@@ -264,12 +258,12 @@ namespace ASTERIXDecode
             OutData.LatitudeDecimal = InData.Latitude.Deg + (InData.Latitude.Min * OneOverSixty) + (InData.Latitude.Sec * OneOverSixty * OneOverSixty);
             OutData.LongitudeDecimal = InData.Longitude.Deg + (InData.Longitude.Min * OneOverSixty) + (InData.Longitude.Sec * OneOverSixty * OneOverSixty);
 
-            if (InData.Latitude.Prefix == LatLongPrefix.S)
+            if(InData.Latitude.Prefix == LatLongPrefix.S)
                 OutData.LatitudeDecimal = OutData.LatitudeDecimal * -1.0;
 
-            if (InData.Longitude.Prefix == LatLongPrefix.W)
+            if(InData.Longitude.Prefix == LatLongPrefix.W)
                 OutData.LongitudeDecimal = OutData.LongitudeDecimal * -1.0;
-            
+
             return OutData;
         }
 

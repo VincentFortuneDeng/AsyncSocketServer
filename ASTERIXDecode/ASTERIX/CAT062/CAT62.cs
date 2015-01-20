@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT62
+    public class CAT62
     {
         // SDPS Track Messages
         //

@@ -15,7 +15,7 @@ namespace ASTERIXDecode
     /// do not exist the system is initialised to the default configuration
     /// Bosnia and Herzegovina.
     /// </summary>
-    class SystemAdaptationDataSet
+    public class SystemAdaptationDataSet
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Here define the system origin point. It is the point to be used as the center of the data display.

@@ -28,7 +28,7 @@ namespace ASTERIXDecode
     // - Reserved for RFS indicator
     // FX Field Extension Indicator
 
-    class CAT02
+    public class CAT02
     {
         // Current data buffer Index
         public static int CurrentDataBufferOctalIndex = 0;

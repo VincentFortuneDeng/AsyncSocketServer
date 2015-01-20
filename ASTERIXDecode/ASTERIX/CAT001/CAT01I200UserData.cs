@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I200UserData
+    public class CAT01I200UserData
     {
         /////////////////////////////////////////////////////////////////
         /// Define calculated GSPD LSB to MSB
@@ -61,77 +61,77 @@ namespace ASTERIXDecode
             BO.DWord[Bit_Ops.Bits24_31_Of_DWord] = Data[CAT01.CurrentDataBufferOctalIndex + 1];
 
             CalculatedGSPandHDG.Is_Valid = true;
-            
+
             ///////////////////////////////////////////////////////////////////////////////////////
             // Decode GSPD
             ///////////////////////////////////////////////////////////////////////////////////////
-            if (BO.DWord[Bit_Ops.Bit16] == true)
+            if(BO.DWord[Bit_Ops.Bit16] == true)
                 CalculatedGSPandHDG.GSPD = GSPD_1;
-            if (BO.DWord[Bit_Ops.Bit17] == true)
+            if(BO.DWord[Bit_Ops.Bit17] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_2;
-            if (BO.DWord[Bit_Ops.Bit18] == true)
+            if(BO.DWord[Bit_Ops.Bit18] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_3;
-            if (BO.DWord[Bit_Ops.Bit19] == true)
+            if(BO.DWord[Bit_Ops.Bit19] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_4;
-            if (BO.DWord[Bit_Ops.Bit20] == true)
+            if(BO.DWord[Bit_Ops.Bit20] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_5;
-            if (BO.DWord[Bit_Ops.Bit21] == true)
+            if(BO.DWord[Bit_Ops.Bit21] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_6;
-            if (BO.DWord[Bit_Ops.Bit22] == true)
+            if(BO.DWord[Bit_Ops.Bit22] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_7;
-            if (BO.DWord[Bit_Ops.Bit23] == true)
+            if(BO.DWord[Bit_Ops.Bit23] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_8;
-            if (BO.DWord[Bit_Ops.Bit24] == true)
+            if(BO.DWord[Bit_Ops.Bit24] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_9;
-            if (BO.DWord[Bit_Ops.Bit25] == true)
+            if(BO.DWord[Bit_Ops.Bit25] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_10;
-            if (BO.DWord[Bit_Ops.Bit26] == true)
+            if(BO.DWord[Bit_Ops.Bit26] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_11;
-            if (BO.DWord[Bit_Ops.Bit27] == true)
+            if(BO.DWord[Bit_Ops.Bit27] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_12;
-            if (BO.DWord[Bit_Ops.Bit28] == true)
+            if(BO.DWord[Bit_Ops.Bit28] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_13;
-            if (BO.DWord[Bit_Ops.Bit29] == true)
+            if(BO.DWord[Bit_Ops.Bit29] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_14;
-            if (BO.DWord[Bit_Ops.Bit30] == true)
+            if(BO.DWord[Bit_Ops.Bit30] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_15;
-            if (BO.DWord[Bit_Ops.Bit31] == true)
+            if(BO.DWord[Bit_Ops.Bit31] == true)
                 CalculatedGSPandHDG.GSPD = CalculatedGSPandHDG.GSPD + GSPD_16;
 
             ///////////////////////////////////////////////////////////////////////////////////////
             // Decode HDG
             ///////////////////////////////////////////////////////////////////////////////////////
-            if (BO.DWord[Bit_Ops.Bit0] == true)
+            if(BO.DWord[Bit_Ops.Bit0] == true)
                 CalculatedGSPandHDG.HDG = HDG_1;
-            if (BO.DWord[Bit_Ops.Bit1] == true)
+            if(BO.DWord[Bit_Ops.Bit1] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_2;
-            if (BO.DWord[Bit_Ops.Bit2] == true)
+            if(BO.DWord[Bit_Ops.Bit2] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_3;
-            if (BO.DWord[Bit_Ops.Bit3] == true)
+            if(BO.DWord[Bit_Ops.Bit3] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_4;
-            if (BO.DWord[Bit_Ops.Bit4] == true)
+            if(BO.DWord[Bit_Ops.Bit4] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_5;
-            if (BO.DWord[Bit_Ops.Bit5] == true)
+            if(BO.DWord[Bit_Ops.Bit5] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_6;
-            if (BO.DWord[Bit_Ops.Bit6] == true)
+            if(BO.DWord[Bit_Ops.Bit6] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_7;
-            if (BO.DWord[Bit_Ops.Bit7] == true)
+            if(BO.DWord[Bit_Ops.Bit7] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_8;
-            if (BO.DWord[Bit_Ops.Bit8] == true)
+            if(BO.DWord[Bit_Ops.Bit8] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_9;
-            if (BO.DWord[Bit_Ops.Bit9] == true)
+            if(BO.DWord[Bit_Ops.Bit9] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_10;
-            if (BO.DWord[Bit_Ops.Bit10] == true)
+            if(BO.DWord[Bit_Ops.Bit10] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_11;
-            if (BO.DWord[Bit_Ops.Bit11] == true)
+            if(BO.DWord[Bit_Ops.Bit11] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_12;
-            if (BO.DWord[Bit_Ops.Bit12] == true)
+            if(BO.DWord[Bit_Ops.Bit12] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_13;
-            if (BO.DWord[Bit_Ops.Bit13] == true)
+            if(BO.DWord[Bit_Ops.Bit13] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_14;
-            if (BO.DWord[Bit_Ops.Bit14] == true)
+            if(BO.DWord[Bit_Ops.Bit14] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_15;
-            if (BO.DWord[Bit_Ops.Bit15] == true)
+            if(BO.DWord[Bit_Ops.Bit15] == true)
                 CalculatedGSPandHDG.HDG = CalculatedGSPandHDG.HDG + HDG_16;
 
             //////////////////////////////////////////////////////////////////////////////////

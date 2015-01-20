@@ -36,7 +36,7 @@ namespace ASTERIXDecode
     // Define a class that holds I001 data
 
     // Current data buffer Index
-    class CAT34
+    public class CAT34
     {
         public static int CurrentDataBufferOctalIndex = 0;
 

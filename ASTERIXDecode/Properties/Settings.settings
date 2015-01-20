@@ -63,7 +63,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="PopulateMainListBox" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SyncDisplayToNorthMark" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

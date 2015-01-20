@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I070UserData
+    public class CAT01I070UserData
     {
         public static void DecodeCAT01I070(byte[] Data)
         {
@@ -19,21 +19,21 @@ namespace ASTERIXDecode
 
             //////////////////////////////////////////////////////////////////////////////////
             // Decode Code validation
-            if (BO.DWord[Bit_Ops.Bit15] == true)
+            if(BO.DWord[Bit_Ops.Bit15] == true)
                 MyCAT01I070.Code_Validated = CAT01I070Types.Code_Validation_Type.Code_Not_Validated;
             else
                 MyCAT01I070.Code_Validated = CAT01I070Types.Code_Validation_Type.Code_Validated;
 
             //////////////////////////////////////////////////////////////////////////////////
             // Decode Code Garbling 
-            if (BO.DWord[Bit_Ops.Bit14] == true)
+            if(BO.DWord[Bit_Ops.Bit14] == true)
                 MyCAT01I070.Code_Garbled = CAT01I070Types.Code_Garbled_Type.Code_Garbled;
             else
                 MyCAT01I070.Code_Garbled = CAT01I070Types.Code_Garbled_Type.Code_Not_Garbled;
 
             //////////////////////////////////////////////////////////////////////////////////
             // Decode Code Smothed or from Transponder
-            if (BO.DWord[Bit_Ops.Bit13] == true)
+            if(BO.DWord[Bit_Ops.Bit13] == true)
                 MyCAT01I070.Code_Smothed_Or_From_Transponder = CAT01I070Types.Code_Smothed_Or_From_Transporder_Type.Code_Smoothed;
             else
                 MyCAT01I070.Code_Smothed_Or_From_Transponder = CAT01I070Types.Code_Smothed_Or_From_Transporder_Type.Code_From_Transpodner;
@@ -62,19 +62,19 @@ namespace ASTERIXDecode
         {
             int Result = -1;
 
-            if ((One == false) && (Two == false) && (Three == false))       // 0
+            if((One == false) && (Two == false) && (Three == false))       // 0
                 Result = 0;
-            else if ((One == true) && (Two == false) && (Three == false))   // 1
+            else if((One == true) && (Two == false) && (Three == false))   // 1
                 Result = 1;
-            else if ((One == false) && (Two == true) && (Three == false))   // 2
+            else if((One == false) && (Two == true) && (Three == false))   // 2
                 Result = 2;
-            else if ((One == true) && (Two == true) && (Three == false))    // 3
+            else if((One == true) && (Two == true) && (Three == false))    // 3
                 Result = 3;
-            else if ((One == false) && (Two == false) && (Three == true))   // 4
+            else if((One == false) && (Two == false) && (Three == true))   // 4
                 Result = 4;
-            else if ((One == true) && (Two == false) && (Three == true))    // 5
+            else if((One == true) && (Two == false) && (Three == true))    // 5
                 Result = 5;
-            else if ((One == false) && (Two == true) && (Three == true))    // 6
+            else if((One == false) && (Two == true) && (Three == true))    // 6
                 Result = 6;
             else                                                            // 7
                 Result = 7;

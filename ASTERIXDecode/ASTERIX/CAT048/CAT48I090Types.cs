@@ -5,11 +5,11 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT48I090Types
+    public class CAT48I090Types
     {
         public enum Code_Validation_Type { Code_Validated, Code_Not_Validated, Unknown };
         public enum Code_Garbled_Type { Code_Garbled, Code_Not_Garbled, Unknown };
-        
+
         public class CAT48I090FlightLevelUserData
         {
             public Code_Validation_Type Code_Validated = Code_Validation_Type.Unknown;

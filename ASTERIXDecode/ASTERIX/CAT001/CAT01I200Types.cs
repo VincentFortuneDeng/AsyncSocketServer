@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I200Types
+    public class CAT01I200Types
     {
         public class CalculatedGSPandHDG_Type
         {

@@ -12,7 +12,7 @@ namespace ASTERIXDecode
     //
     // This is nothig more than a central place for all data to be
     // stored.
-    class MainASTERIXDataStorage
+    public class MainASTERIXDataStorage
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // CAT 01 Messages
@@ -61,7 +61,7 @@ namespace ASTERIXDecode
 
         // This is the main storage of all CAT48 Messages
         public static System.Collections.Generic.List<CAT34Data> CAT34Message = new System.Collections.Generic.List<CAT34Data>();
-        
+
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // CAT 62 Messages
         //

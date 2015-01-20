@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I161UserData
+    public class CAT01I161UserData
     {
         public static void DecodeCAT01I161(byte[] Data)
         {

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT02I030Types
+    public class CAT02I030Types
     {
 
         public class CAT02I030_Time_Of_The_Day_User_Type

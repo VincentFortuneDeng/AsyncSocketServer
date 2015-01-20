@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT02I000Types
+    public class CAT02I000Types
     {
 
         // I002/000 Message Type                        1

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT48I020UserData
+    public class CAT48I020UserData
     {
         public CAT48I020Types.Type_Of_Report_Type Type_Of_Report = CAT48I020Types.Type_Of_Report_Type.Unknown_Data;
 

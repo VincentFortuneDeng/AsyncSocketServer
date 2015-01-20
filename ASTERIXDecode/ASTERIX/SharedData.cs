@@ -26,7 +26,7 @@ namespace ASTERIXDecode
         // directory
         public static class DataRecordingClass
         {
-            public static bool DataRecordingRequested = false;
+            public static bool DataRecordingRequested = true;
             public static string FilePathandName = @".\RadarRecord.log";
         }
 
@@ -42,9 +42,9 @@ namespace ASTERIXDecode
         //
         // Here store connection parameters
         public static string ConnName = "N/A";
-        public static string CurrentMulticastAddress = "N/A";
-        public static string CurrentInterfaceIPAddress = "N/A";
-        public static int Current_Port = 0;
+        public static string CurrentMulticastAddress = "192.168.0.255";//"N/A";
+        public static string CurrentInterfaceIPAddress = "192.168.0.10";
+        public static int Current_Port = 10000;
 
         public static void ResetConnectionParameters()
         {

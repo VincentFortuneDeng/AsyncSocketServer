@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT48I040Types
+    public class CAT48I040Types
     {
         public class CAT48I040MeasuredPosInPolarCoordinates
         {

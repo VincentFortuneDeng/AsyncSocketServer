@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I020UserData
+    public class CAT01I020UserData
     {
 
         public CAT01I020Types.Type_Of_Report_Type Type_Of_Report = CAT01I020Types.Type_Of_Report_Type.Unknown_Data;
@@ -39,11 +39,10 @@ namespace ASTERIXDecode
 
         public static void DecodeCAT01I002(byte[] Data)
         {
-           
+
             // Decode 020
-            if (CAT01.I001DataItems[CAT01.ItemIDToIndex("020")].CurrentlyPresent == true)
-            {
-                 // First define CAT01I002 class
+            if(CAT01.I001DataItems[CAT01.ItemIDToIndex("020")].CurrentlyPresent == true) {
+                // First define CAT01I002 class
                 CAT01I020UserData MyI002UserData = new CAT01I020UserData();
 
                 // Get an instance of bit ops
@@ -53,14 +52,14 @@ namespace ASTERIXDecode
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if (BO.DWord[CAT01I020Types.Word1_TYP_Index] == true)
+                if(BO.DWord[CAT01I020Types.Word1_TYP_Index] == true)
                     MyI002UserData.Type_Of_Report = CAT01I020Types.Type_Of_Report_Type.Track;
                 else
                     MyI002UserData.Type_Of_Report = CAT01I020Types.Type_Of_Report_Type.Plot;
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if (BO.DWord[CAT01I020Types.Word1_SIM_Index] == true)
+                if(BO.DWord[CAT01I020Types.Word1_SIM_Index] == true)
                     MyI002UserData.Simulated_Or_Actual_Report = CAT01I020Types.Simulated_Or_Actual_Type.Simulated;
                 else
                     MyI002UserData.Simulated_Or_Actual_Report = CAT01I020Types.Simulated_Or_Actual_Type.Actual;
@@ -68,28 +67,21 @@ namespace ASTERIXDecode
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if ((BO.DWord[CAT01I020Types.Word1_SSR_PSR_Start_Index] == true) &&
-                    (BO.DWord[CAT01I020Types.Word1_SSR_PSR_End_Index] == true))
-                {
+                if((BO.DWord[CAT01I020Types.Word1_SSR_PSR_Start_Index] == true) &&
+                    (BO.DWord[CAT01I020Types.Word1_SSR_PSR_End_Index] == true)) {
                     MyI002UserData.Type_Of_Radar_Detection = CAT01I020Types.Radar_Detection_Type.Combined;
-                }
-                else if ((BO.DWord[CAT01I020Types.Word1_SSR_PSR_Start_Index] == false) &&
-                    (BO.DWord[CAT01I020Types.Word1_SSR_PSR_End_Index] == false))
-                {
+                } else if((BO.DWord[CAT01I020Types.Word1_SSR_PSR_Start_Index] == false) &&
+                      (BO.DWord[CAT01I020Types.Word1_SSR_PSR_End_Index] == false)) {
                     MyI002UserData.Type_Of_Radar_Detection = CAT01I020Types.Radar_Detection_Type.No_Detection;
-                }
-                else if (BO.DWord[CAT01I020Types.Word1_SSR_PSR_Start_Index] == true)
-                {
+                } else if(BO.DWord[CAT01I020Types.Word1_SSR_PSR_Start_Index] == true) {
                     MyI002UserData.Type_Of_Radar_Detection = CAT01I020Types.Radar_Detection_Type.Secondary;
-                }
-                else
-                {
+                } else {
                     MyI002UserData.Type_Of_Radar_Detection = CAT01I020Types.Radar_Detection_Type.Primary;
                 }
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if (BO.DWord[CAT01I020Types.Word1_ANT_Index] == true)
+                if(BO.DWord[CAT01I020Types.Word1_ANT_Index] == true)
                     MyI002UserData.Antena_Source = CAT01I020Types.Antena_Source_Type.Antena_2;
                 else
                     MyI002UserData.Antena_Source = CAT01I020Types.Antena_Source_Type.Antena_1;
@@ -97,7 +89,7 @@ namespace ASTERIXDecode
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if (BO.DWord[CAT01I020Types.Word1_SPI_Index] == true)
+                if(BO.DWord[CAT01I020Types.Word1_SPI_Index] == true)
                     MyI002UserData.Special_Position_Ind = CAT01I020Types.Special_Position_Ind_Type.SPI_Special_Position_Indicator;
                 else
                     MyI002UserData.Special_Position_Ind = CAT01I020Types.Special_Position_Ind_Type.Default_Position;
@@ -105,7 +97,7 @@ namespace ASTERIXDecode
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if (BO.DWord[CAT01I020Types.Word1_FFT_Index] == true)
+                if(BO.DWord[CAT01I020Types.Word1_FFT_Index] == true)
                     MyI002UserData.Data_Is_From_FFT = CAT01I020Types.Data_From_FFT_Type.From_FFT;
 
                 else
@@ -113,11 +105,10 @@ namespace ASTERIXDecode
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 //
-                if (BO.DWord[CAT01I020Types.Word1_FX_Index] == false)
+                if(BO.DWord[CAT01I020Types.Word1_FX_Index] == false)
                     MyI002UserData.Next_Extension_1 = CAT01I020Types.Next_Extension_Type.No;
 
-                else
-                {
+                else {
                     MyI002UserData.Next_Extension_1 = CAT01I020Types.Next_Extension_Type.Yes;
 
                     // OK we have a field extension, so lets first move the data buffer to the next 
@@ -128,7 +119,7 @@ namespace ASTERIXDecode
                     BO.DWord[Bit_Ops.Bits0_7_Of_DWord] = Data[CAT01.CurrentDataBufferOctalIndex];
 
 
-                    if (BO.DWord[CAT01I020Types.Word2_TST_Index] == true)
+                    if(BO.DWord[CAT01I020Types.Word2_TST_Index] == true)
                         MyI002UserData.Is_Test_Target_Indicator = CAT01I020Types.Test_Target_Indicator_Type.Test_Target_Indicator;
                     else
                         MyI002UserData.Is_Test_Target_Indicator = CAT01I020Types.Test_Target_Indicator_Type.Default_Target_Indicator_Type;
@@ -138,38 +129,31 @@ namespace ASTERIXDecode
 
                     ///////////////////////////////////////////////////////////////////////////////////////////////////
                     //
-                    if ((BO.DWord[CAT01I020Types.Word2_DS1_DS2_Start_Index] == true) &&
-                        (BO.DWord[CAT01I020Types.Word2_DS1_DS2_End_Index] == true))
-                    {
+                    if((BO.DWord[CAT01I020Types.Word2_DS1_DS2_Start_Index] == true) &&
+                        (BO.DWord[CAT01I020Types.Word2_DS1_DS2_End_Index] == true)) {
                         MyI002UserData.Special_SSR_Codes = CAT01I020Types.Special_SSR_Codes_Type.C7700_Emergency;
-                    }
-                    else if ((BO.DWord[CAT01I020Types.Word2_DS1_DS2_Start_Index] == false) &&
-                        (BO.DWord[CAT01I020Types.Word2_DS1_DS2_End_Index] == false))
-                    {
+                    } else if((BO.DWord[CAT01I020Types.Word2_DS1_DS2_Start_Index] == false) &&
+                          (BO.DWord[CAT01I020Types.Word2_DS1_DS2_End_Index] == false)) {
                         MyI002UserData.Special_SSR_Codes = CAT01I020Types.Special_SSR_Codes_Type.Default_SSR_Code;
-                    }
-                    else if (BO.DWord[CAT01I020Types.Word2_DS1_DS2_Start_Index] == true)
-                    {
+                    } else if(BO.DWord[CAT01I020Types.Word2_DS1_DS2_Start_Index] == true) {
                         MyI002UserData.Special_SSR_Codes = CAT01I020Types.Special_SSR_Codes_Type.C7600_Radio_Com_Failure;
-                    }
-                    else
-                    {
+                    } else {
                         MyI002UserData.Special_SSR_Codes = CAT01I020Types.Special_SSR_Codes_Type.C7500_Unlawful_Interference;
                     }
 
 
-                    if (BO.DWord[CAT01I020Types.Word2_ME_Index] == true)
+                    if(BO.DWord[CAT01I020Types.Word2_ME_Index] == true)
                         MyI002UserData.Is_Military_Emergency = CAT01I020Types.Military_Emergency_Type.Yes;
                     else
                         MyI002UserData.Is_Military_Emergency = CAT01I020Types.Military_Emergency_Type.No;
 
 
-                    if (BO.DWord[CAT01I020Types.Word2_MI_Index] == true)
+                    if(BO.DWord[CAT01I020Types.Word2_MI_Index] == true)
                         MyI002UserData.Is_Military_Identification = CAT01I020Types.Military_Identification_Type.Yes;
                     else
                         MyI002UserData.Is_Military_Identification = CAT01I020Types.Military_Identification_Type.No;
 
-                    if (BO.DWord[CAT01I020Types.Word2_FX_Index] == true)
+                    if(BO.DWord[CAT01I020Types.Word2_FX_Index] == true)
                         MyI002UserData.Next_Extension_2 = CAT01I020Types.Next_Extension_Type.Yes;
                     else
                         MyI002UserData.Next_Extension_2 = CAT01I020Types.Next_Extension_Type.No;
@@ -186,6 +170,6 @@ namespace ASTERIXDecode
         /// // Common type
         /// </summary>
 
-      
+
     }
 }

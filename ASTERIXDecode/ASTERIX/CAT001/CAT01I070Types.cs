@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT01I070Types
+    public class CAT01I070Types
     {
         public enum Code_Validation_Type { Code_Validated, Code_Not_Validated, Unknown };
         public enum Code_Garbled_Type { Code_Garbled, Code_Not_Garbled, Unknown };

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT48I240Types
+    public class CAT48I240Types
     {
         public class CAT48I240ACID_Data
         {

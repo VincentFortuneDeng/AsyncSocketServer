@@ -58,6 +58,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FrmDetailedView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmDetailedView.Designer.cs">
+      <DependentUpon>FrmDetailedView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RadarDecode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RadarDecode.Designer.cs">
+      <DependentUpon>RadarDecode.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmADSBSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,6 +90,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="RadarDecode.resx">
+      <DependentUpon>RadarDecode.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmADSBSettings.resx">
       <DependentUpon>frmADSBSettings.cs</DependentUpon>
     </EmbeddedResource>
@@ -99,6 +114,12 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="index6.dat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Radar.dat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TrailData.log">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASTERIXDecode
 {
-    class CAT34I050Types
+    public class CAT34I050Types
     {
 
         /// <summary>
